@@ -89,7 +89,7 @@ app.get('/stream', function (req, res) {
 				
 				// Set audio format and begin streaming
 				proc.toFormat('mp3');
-				proc.audioBitrate(128);
+				proc.audioBitrate(320);
 				proc.writeToStream(res, { end: true });
 			});
 		});
