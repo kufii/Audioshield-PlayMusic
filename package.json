@@ -1,0 +1,15 @@
+{
+  "name": "audioshield-tubifier",
+  "version": "0.0.1",
+  "description": "Proxy server for Audioshield to replace Soundcloud support with Youtube support",
+  "main": "index.js",
+  "keywords": ["audioshield-tubifier", "audioshield", "youtube", "htc vive", "vive", "soundcloud"],
+  "author": "-olli- (https://www.reddit.com/user/-olli-)",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "fluent-ffmpeg": "^2.1.0",
+    "request": "^2.72.0",
+    "playmusic": "^2.1.1"
+  }
+}
