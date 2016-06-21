@@ -28,7 +28,6 @@ Another restrictions of this library is that you cannot have 2 factor enabled fo
 8. Install Fiddler Web Debugger (version for .NET4) from http://www.telerik.com/fiddler. Giving a valid email address in the download form is not required. Fiddler will decrypt the HTTPS-traffic from Audioshield.
 9. Install the CertMaker add-on for Fiddler: http://www.telerik.com/blogs/faq---certificates-in-fiddler. Direct link: http://fiddler2.com/r/?fiddlercertmaker.
 10. Configure Fiddler to decrypt HTTPS traffic: http://docs.telerik.com/fiddler/Configure-Fiddler/Tasks/DecryptHTTPS. Let Fiddler install a Root Certificate by clicking 'Yes' twice. If you accidently hit 'No', go to 'Actions' button -> Trust Root Certificate. http://docs.telerik.com/fiddler/Configure-Fiddler/Tasks/TrustFiddlerRootCert
-11. 
 
 # Launch Instructions
 
