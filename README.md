@@ -14,6 +14,8 @@ Unfortunately your google account is under the restrictions of the [Node.js unof
 
 >The Google account also needs to have the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
 
+Another restrictions of this library is that you cannot have 2 factor enabled for your account. Please disable it for using this.
+
 # Installation Instructions
 
 1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.2.0), visit https://nodejs.org/en/. Verify installation with command 'node --version' (without quotes) in Windows Command Prompt.
