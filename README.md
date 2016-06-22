@@ -14,14 +14,12 @@ Unfortunately your google account is under the restrictions of the [Node.js unof
 
 >The Google account also needs to have the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
 
-Another restrictions of this library is that you cannot have 2 factor enabled for your account. Please disable it for using this.
-
 # Installation Instructions
 
 1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.2.0), visit https://nodejs.org/en/. Verify installation with command 'node --version' (without quotes) in Windows Command Prompt.
 2. Download a zip of this project and extract it anywhere.
 3. Open a command prompt, navigate to the directory and run `npm install`
-4. Open pmcred.json and enter your email and password. In the command prompt run `node login.js`
+4. Open pmcred.json and enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en). In the command prompt run `node login.js`
 5. Paste the androidId and masterToken into apikey.json. You can now clear your email and password from pmcred.json.
 6. Open Windows Command Prompt and issue command 'ffmpeg' (without quotes). If you get a message saying the command isn't recognized, you need to install ffmpeg by downloading either 32-bit or 64-bit static version of ffmpeg from here: https://ffmpeg.zeranoe.com/builds/. Inside the zip-file you can find a bin-folder, inside which is the ffmpeg.exe -file. Copy this file to the system32 -folder which is inside your Windows folder. Close and reopen the Command Prompt and issue the same command again to verify installation.
 7. Next we need to redirect api.soundcloud.com to point towards your localhost. You do this by adding the line '127.0.0.1 api.soundcloud.com' (without quotes) to your hosts file. See these instructions: http://helpdeskgeek.com/windows-7/windows-7-hosts-file/. Please note that this also means any other applications using the Soundcloud API will not work until you remove this line.
