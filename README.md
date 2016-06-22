@@ -32,7 +32,7 @@ Unfortunately your google account is under the restrictions of the [Node.js unof
 1. Open the Windows Command Prompt and navigate to the directory where Audioshield-PlayMusic was installed.
 2. Type into the command prompt: `node index.js`. You should see the text "Server running" displayed.
 3. Start Fiddler and select File -> Capture Traffic to start HTTPS decryption.
-4. Start Audioshield and do a song search. Fiddler should prompt for an invalid certificate, click Yes to accept. This has to be done once every time Fiddler is started. Tip: use desktop view in Vive dashboard.
+4. Start Audioshield and do a song search. Fiddler should prompt for an invalid certificate, click Yes to accept. This has to be done once every time Fiddler is started. Tip: use desktop view in Vive dashboard. If you'd like you can disable this warning in Tools -> Fiddler Options -> HTTPS -> Ignore server certificate errors.
 5. Enjoy Audioshield with Play Music
 
 # Uninstallation Instructions

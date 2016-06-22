@@ -32,11 +32,11 @@ var parseTracks = function(tracks) {
 		// Load an empty copy of a Soundcloud API response
 		var soundcloudResponse = JSON.parse(JSON.stringify(soundcloud_template));
 
-		// Fill the template with values from the Youtube API response
+		// Fill the template with values from the Play Music API response
 		// Note specially the stream_url -field, which is set to correspond to our /stream HTTPS endpoint
 		soundcloudResponse.title = track.track.title;
 		soundcloudResponse.id = track.track.nid;
-		soundcloudResponse.artwork_url = track.track.albumArtRef.url;
+		soundcloudResponse.artwork_url = track.track.albumArtRef[0].url;
 		soundcloudResponse.user.username = track.track.artist;
 		soundcloudResponse.stream_url = 'https://api.soundcloud.com/stream?id=' + soundcloudResponse.id;
 		soundcloudResponse.uri = 'https://api.soundcloud.com/stream/' + soundcloudResponse.id;
@@ -65,7 +65,7 @@ app.get('/stream', function (req, res) {
 	
 		console.log("Got a stream request for Play Music id: " + id);
 
-		pm.init({androidId: API_KEY.androidId, masterToken:API_KEY.masterToken}, function(err) {
+		pm.init({androidId: API_KEY.androidId, masterToken: API_KEY.masterToken}, function(err) {
 			if (err) throw err;
 
 			// load audio
@@ -96,7 +96,7 @@ app.get('/stream', function (req, res) {
 	}
 });
 
-// Here we register a HTTPS endpoint that handles searching Youtube for videos
+// Here we register a HTTPS endpoint that handles searching Play Music for tracks
 // This endpoint format is set by Audioshield, so we have to follow it
 // Expected URL: https://api.soundcloud.com/tracks?q=<SearchTerms>
 app.get('/tracks', function (req, res) {
@@ -108,7 +108,7 @@ app.get('/tracks', function (req, res) {
 		// q -parameter found
 		console.log("Got a search request: " + req.query.q);
 
-		pm.init({androidId: API_KEY.androidId, masterToken:API_KEY.masterToken}, function(err) {
+		pm.init({androidId: API_KEY.androidId, masterToken: API_KEY.masterToken}, function(err) {
 			if (err) throw err;
 
 			pm.search(req.query.q, 20, function(err, data) {
@@ -117,9 +117,7 @@ app.get('/tracks', function (req, res) {
 					// only return songs
 					var tracks = data.entries.filter(function(entry) {
 						return entry.type === '1';
-					});
-					// sort tracks
-					tracks = tracks.sort(function(a, b) {
+					}).sort(function(a, b) {
 						return a.score < b.score;
 					});
 
@@ -137,14 +135,19 @@ app.get('/tracks', function (req, res) {
 // Script execution begins here
 
 if (API_KEY.androidId !== "-1" && API_KEY.masterToken !== '-1') {
-		// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
-		// Audioshield expects HTTPS port 443
+	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
+	// Audioshield expects HTTPS port 443
 
-		var httpsServer = https.createServer(options, app);
-		httpsServer.listen(443);
+	// app.listen(443, function() {
+	// 	console.log("Server running");
+	// 	console.log("CTRL+C to shutdown");
+	// });
 
-		console.log("Server running");
-		console.log("CTRL+C to shutdown");
+	var httpsServer = https.createServer(options, app);
+	httpsServer.listen(443);
+
+	console.log("Server running");
+	console.log("CTRL+C to shutdown");
 } else {
 
 	// Credentials key has not been set
