@@ -5,7 +5,7 @@
 var API_KEY = require('./apikey.json');
 
 // Load a template for an empty response from Soundcloud API. This will be filled with values from the Play Music API.
-var soundcloud_template = require('./soundcloud_template.json');
+var soundcloudTemplate = require('./soundcloud_template.json');
 
 // Required libraries
 var fs = require('fs');
@@ -22,16 +22,15 @@ var pm = new PlayMusic();
 var options = {
 	key: fs.readFileSync('./key.pem'),
 	cert: fs.readFileSync('./cert.pem'),
-	passphrase: "audioshield"
+	passphrase: "audioshield",
+	rejectUnauthorized: false
 };
 
 var parseTracks = function(tracks) {
-	var output = [];
 
-	tracks.forEach(function(track) {
-		// Load an empty copy of a Soundcloud API response
-		var soundcloudResponse = JSON.parse(JSON.stringify(soundcloud_template));
-
+	console.time('pretty');
+	var output = tracks.map(function(track) {
+		var soundcloudResponse = JSON.parse(JSON.stringify(soundcloudTemplate));
 		// Fill the template with values from the Play Music API response
 		// Note specially the stream_url -field, which is set to correspond to our /stream HTTPS endpoint
 		soundcloudResponse.title = track.track.title;
@@ -43,9 +42,9 @@ var parseTracks = function(tracks) {
 		soundcloudResponse.permalink = soundcloudResponse.id;
 		soundcloudResponse.permalink_url = soundcloudResponse.uri;
 
-		// Add the finished response to the total output
-		output.push(soundcloudResponse);
+		return soundcloudResponse;
 	});
+	console.timeEnd('pretty');
 
 	// Return the constructed output in JSON-format
 	return JSON.stringify(output);
