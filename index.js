@@ -22,13 +22,10 @@ var pm = new PlayMusic();
 var options = {
 	key: fs.readFileSync('./key.pem'),
 	cert: fs.readFileSync('./cert.pem'),
-	passphrase: "audioshield",
-	rejectUnauthorized: false
+	passphrase: "audioshield"
 };
 
 var parseTracks = function(tracks) {
-
-	console.time('pretty');
 	var output = tracks.map(function(track) {
 		var soundcloudResponse = JSON.parse(JSON.stringify(soundcloudTemplate));
 		// Fill the template with values from the Play Music API response
@@ -44,7 +41,6 @@ var parseTracks = function(tracks) {
 
 		return soundcloudResponse;
 	});
-	console.timeEnd('pretty');
 
 	// Return the constructed output in JSON-format
 	return JSON.stringify(output);
