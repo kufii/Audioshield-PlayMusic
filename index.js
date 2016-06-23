@@ -133,20 +133,12 @@ if (API_KEY.androidId !== "-1" && API_KEY.masterToken !== '-1') {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
 	// Audioshield expects HTTPS port 443
 
-	// app.listen(443, function() {
-	// 	console.log("Server running");
-	// 	console.log("CTRL+C to shutdown");
-	// });
-
 	var httpsServer = https.createServer(options, app);
 	httpsServer.listen(443);
 
 	console.log("Server running");
 	console.log("CTRL+C to shutdown");
 } else {
-
 	// Credentials key has not been set
-
 	console.log("API keys have not been set. Login using login.js.");
-	
 }
