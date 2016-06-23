@@ -76,10 +76,8 @@ app.get('/stream', function (req, res) {
 				
 				// Error handling
 				proc.on('error', function(err, stdout, stderr) { 
-				
 					// "Output stream closed" error message is ignored, it is caused by browsers doing a double HTTP-request
 					if (err.message != "Output stream closed") throw err;
-					
 				});
 				
 				// Set audio format and begin streaming
@@ -128,7 +126,6 @@ app.get('/tracks', function (req, res) {
 });
 
 // Script execution begins here
-
 if (API_KEY.androidId !== "-1" && API_KEY.masterToken !== '-1') {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
 	// Audioshield expects HTTPS port 443
