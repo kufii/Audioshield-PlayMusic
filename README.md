@@ -32,7 +32,7 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 # Launch Instructions
 
-1. Launch start-game.bat or Audioshield-PlayMusic.exe. These Launches will launch the server, Fiddler, and Audioshield, and will close them all when Audioshield is closed.
+1. Launch start-game.bat or Audioshield-PlayMusic.exe. These Launchers will launch the server, Fiddler, and Audioshield, and will close them all when Audioshield is closed.
 
 # Adding Launcher to SteamVR
 
