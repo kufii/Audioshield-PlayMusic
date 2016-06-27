@@ -26,9 +26,10 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 8. Make sure File -> Capture Traffic is enabled in Fiddler.
 9. Download a zip of this project and extract it anywhere.
 10. Open a command prompt, navigate to the directory and run `npm install`
-11. Open pmcred.json and enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en). In the command prompt run `node login.js`
-12. Paste the androidId and masterToken into apikey.json. You can now clear your email and password from pmcred.json.
-13. Open up config.json and make sure the correct paths are set for Steam.exe and Fiddler.exe
+11. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
+12. Run `node login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
+13. Paste the androidId and masterToken into apikey.json. You can now clear your email and password from pmcred.json.
+14. Open up config.json and make sure the correct paths are set for Steam.exe and Fiddler.exe
 
 # Launch Instructions
 

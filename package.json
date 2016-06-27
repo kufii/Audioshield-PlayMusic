@@ -1,15 +1,16 @@
 {
-  "name": "audioshield-tubifier",
+  "name": "audioshield-playmusic",
   "version": "0.0.1",
-  "description": "Proxy server for Audioshield to replace Soundcloud support with Youtube support",
+  "description": "Proxy server for Audioshield to replace Soundcloud support with Google Play Music support",
   "main": "index.js",
-  "keywords": ["audioshield-tubifier", "audioshield", "youtube", "htc vive", "vive", "soundcloud"],
-  "author": "-olli- (https://www.reddit.com/user/-olli-)",
+  "keywords": ["audioshield-playmusic", "audioshield", "play music", "google music", "htc vive", "vive", "soundcloud"],
+  "author": "Adrien Pyke (forked from reddit user -olli-)",
   "license": "ISC",
   "dependencies": {
     "express": "^4.13.4",
     "fluent-ffmpeg": "^2.1.0",
     "request": "^2.72.0",
-    "playmusic": "^2.1.1"
+    "playmusic": "^2.1.1",
+    "read": "^1.0.7"
   }
 }

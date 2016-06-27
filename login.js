@@ -1,16 +1,25 @@
-const PM_CRED = require('./pmcred.json');
+const fs = require('fs');
+const read = require('read');
 const PlayMusic = require('playmusic');
+const API_FILE = './apikey.json';
+var apikey = require(API_FILE);
 var pm = new PlayMusic();
 
-if (PM_CRED.email !== -1) {
-	pm.login({email: PM_CRED.email, password: PM_CRED.password}, (err, resp) => {
-		if (err) console.error(err);
+read({prompt: 'Email: '}, (err, email) => {
+	read({prompt: 'Password (generate an app password if using 2 factor authentication): ', silent: true}, (err, password) => {
+		pm.login({email: email, password: password}, (err, resp) => {
+		if (err) 
+			console.log('Email or Password incorrect.');
 		else {
-			console.log('Logged in to Play Music, enter the following data into apikey.json. You can now clear pmcred.json.');
-			console.log(`androidId: ${resp.androidId}`);
-			console.log(`masterToken: ${resp.masterToken}`);
+			apikey.androidId = resp.androidId;
+			apikey.masterToken = resp.masterToken;
+			fs.writeFile(API_FILE, JSON.stringify(apikey, null, 4), (err) => {
+				if (err) 
+					console.error(err);
+				else 
+					console.log('Successfully logged into Google Play Music.');
+			});
 		}
 	});
-} else {
-	console.log('Enter your email and password in pmcred.json');
-}
+	});
+});
