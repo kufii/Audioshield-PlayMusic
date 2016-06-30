@@ -9,7 +9,6 @@
   "dependencies": {
     "express": "^4.13.4",
     "fluent-ffmpeg": "^2.1.0",
-    "request": "^2.72.0",
     "playmusic": "^2.1.1",
     "read": "^1.0.7",
     "gen-run": "^0.1.2"

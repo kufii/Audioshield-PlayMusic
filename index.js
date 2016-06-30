@@ -12,7 +12,6 @@ const fs = require('fs');
 const PlayMusic = require('playmusic');
 const ffmpeg = require('fluent-ffmpeg');
 const https = require('https');
-const request = require("request");
 const express = require('express');
 
 var app = express();
