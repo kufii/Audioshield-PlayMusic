@@ -24,7 +24,7 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 6. In Fiddler go to  Tools -> Fiddler Options -> HTTPS and check "ignore server certificate errors".
 7. Redirect soundcloud API calls. in Fiddler, go to Tools -> Hosts. Check "Enable Remapping of Requests" and enter `localhost api.soundcloud.com` in the textbox.
 8. Make sure File -> Capture Traffic is enabled in Fiddler.
-9. Download a zip of this project and extract it anywhere.
+9. [Download a zip of this project](https://github.com/kufii/Audioshield-PlayMusic/archive/master.zip) and extract it anywhere.
 10. Open a command prompt, navigate to the directory and run `npm install`
 11. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
 12. Run `node login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
