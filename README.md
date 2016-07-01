@@ -42,7 +42,7 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 # Search Options
 
-By default, the search will search for tracks. At the moment there is only one search command, more search commands will come in the future.
+By default, the search will search for tracks, but you can start a search with "-" to do a search command. At the moment there is only one search command, more search commands will come in the future.
 
 * **Search by Album**: `-al <search>`. This will output the tracks of matching albums.
 
