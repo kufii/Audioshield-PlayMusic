@@ -38,7 +38,8 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 1. Add a non steam game to your library and browse for Audioshield-PlayMusic.exe
 2. Right click Audioshield-PlayMusic and click properties. Check Include in VR Library.
-3. Click "Choose Icon" and browse for icon.png
+3. Open Steam Big Picture Mode and navigate to Audioshield-PlayMusic.
+4. Right click it and click "Set Custom Image". Browse for icon.png.
 
 # Search Options
 
