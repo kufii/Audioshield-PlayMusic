@@ -40,6 +40,12 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 2. Right click Audioshield-PlayMusic and click properties. Check Include in VR Library.
 3. Click "Choose Icon" and browse for icon.png
 
+# Search Options
+
+By default, the search will search for tracks. You can various search commands, more search commands will come in the future.
+
+* **Search by Album**: `-al <search>`. This will output the tracks of matching albums.
+
 # Uninstallation Instructions
 1. Uninstall Fiddler through Windows Control Panel
 2. Uninstall Fiddler Root certificate: issue command 'CertMgr.msc' (without quotes) in Windows Run-dialog. Navigate to folder 'Trusted Root Certification Authorities' -> 'Certificates'. Right click the 'DO_NOT_TRUST_FiddlerRoot' certificate and select 'delete'.
