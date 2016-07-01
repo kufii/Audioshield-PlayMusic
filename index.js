@@ -109,7 +109,6 @@ var getPlaylistTracks = function(q, callback) {
 			var playlistTracks = yield pm.getPlayListEntries(gen());
 			if (!playlistTracks.data) return callback(null, []);
 
-			console.log(playlistTracks.data.items);
 			var tracks = [];
 			playlistNames.forEach((name) => {
 				playlistTracks.data.items.forEach((track) => {
