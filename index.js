@@ -27,11 +27,11 @@ var options = {
 
 var parseQuery = function(q) {
 	q = q && q.trim();
-	if(!q || q === '-') return {};
-    if(q.charAt(0) !== '-') return { q: q };
+	if (!q || q === '-') return {};
+	if (q.charAt(0) !== '-') return { q: q };
 
 	var indexOfSpace = q.indexOf(' ');
-	if(indexOfSpace < 0) return { cmd: q.slice(1) };
+	if (indexOfSpace < 0) return { cmd: q.slice(1) };
 	var cmd = q.slice(1, indexOfSpace);
 	return { cmd: cmd, q: q.slice(indexOfSpace + 1) };
 };
@@ -85,7 +85,7 @@ var getAlbumTracks = function(q, callback) {
 			albums = albums.slice(0, 3);
 			var tracks = [];
 			console.log(albums.length);
-			for(var album of albums) {
+			for (var album of albums) {
 				var albumTracks = yield pm.getAlbum(album.album.albumId, true, gen());
 				tracks = tracks.concat(albumTracks.tracks);
 			}
@@ -149,8 +149,8 @@ app.get('/tracks', (req, res) => {
 
 		run(function*(gen) {
 			var tracks;
-			switch(q.cmd && q.cmd.toLowerCase()) {
-				case 'al': 
+			switch (q.cmd && q.cmd.toLowerCase()) {
+				case 'al':
 					tracks = yield getAlbumTracks(q.q, gen());
 					break;
 				default:
