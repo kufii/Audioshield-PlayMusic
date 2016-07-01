@@ -28,7 +28,7 @@ var options = {
 
 var parseQuery = function(q) {
 	q = q && q.trim();
-	if (!q || q === '-') return { };
+	if (!q || q === '-') return {};
 	if (q.charAt(0) !== '-') return { q: q };
 
 	var indexOfSpace = q.indexOf(' ');
