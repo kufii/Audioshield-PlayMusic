@@ -47,6 +47,7 @@ By default, the search will search for tracks, but you can start a search with "
 
 * **Search by Album**: `-al <search>`. This will output the tracks of matching albums.
 * **Search by Playlist**: `-pl <search>`. This will output all tracks in the matching playlists.
+* **Search Thumbed Up Tracks**: `-fav <search>`. This returns all matching thumbed up tracks. The search is optional, you can exclude it to get all thumbed up tracks.
 
 # Uninstallation Instructions
 1. Uninstall Fiddler through Windows Control Panel

@@ -28,13 +28,17 @@ var options = {
 
 var parseQuery = function(q) {
 	q = q && q.trim();
-	if (!q || q === '-') return {};
-	if (q.charAt(0) !== '-') return { q: q };
+	if (!q || q === '-') return { qRequired: true };
+	if (q.charAt(0) !== '-') return { q: q, qRequired: true };
 
 	var indexOfSpace = q.indexOf(' ');
 	if (indexOfSpace < 0) return { cmd: q.slice(1) };
 	var cmd = q.slice(1, indexOfSpace);
-	return { cmd: cmd, q: q.slice(indexOfSpace + 1) };
+	var qRequired = true;
+	if (CMD[cmd] && !CMD[cmd].qRequired) {
+		qRequired = false;
+	}
+	return { cmd: cmd, q: q.slice(indexOfSpace + 1), qRequired: qRequired };
 };
 
 var parseTracks = function(tracks) {
@@ -127,6 +131,63 @@ var getPlaylistTracks = function(q, callback) {
 	});
 };
 
+var getFavoriteTracks = function(q, callback) {
+	run(function*(gen) {
+		try {
+			var favs = yield pm.getFavorites(gen());
+			if (!favs.track) return callback(null, []);
+			favs = favs.track;
+
+			if (q) {
+				// if there's a search query filter the results
+				var fuse = new Fuse(favs, {
+					keys: [{
+						name: 'title',
+						weight: 0.4
+					}, {
+						name: 'album',
+						weight: 0.2
+					}, {
+						name: 'artist',
+						weight: 0.2
+					}, {
+						name: 'albumArtist',
+						weight: 0.2
+					}]
+				});
+				favs = fuse.search(q);
+			}
+
+			favs = favs.map((fav) => {
+				fav.nid = fav.id;
+				fav.albumArtRef = [{ url: fav.imageBaseUrl }];
+				return fav;
+			});
+
+			callback(null, favs);
+		} catch (err) {
+			console.log(err);
+			callback(err);
+		}
+	});
+};
+
+// Setup the list of commands
+const CMD = {
+	al: {
+		fn: getAlbumTracks,
+		qRequired: true
+	},
+	pl: {
+		fn: getPlaylistTracks,
+		qRequired: true
+	},
+	fav: {
+		fn: getFavoriteTracks,
+		qRequired: false
+	}
+};
+
 // Here we register a HTTPS endpoint that streams a given Play Music ID as an mp3-file
 // Expected URL: https://api.soundcloud.com/stream?id=<ID>
 app.get('/stream', (req, res) => {
@@ -142,7 +203,7 @@ app.get('/stream', (req, res) => {
 		console.log(`Got a stream request for Play Music id: ${id}`);
 
 		run(function*(gen) {
-			try  {
+			try {
 				var url = yield pm.getStreamUrl(id, gen());
 
 				// Set the HTTP-headers to audio/mpeg
@@ -155,7 +216,7 @@ app.get('/stream', (req, res) => {
 				// Error handling
 				proc.on('error', (err, stdout, stderr) => {
 					// "Output stream closed" error message is ignored, it is caused by browsers doing a double HTTP-request
-					if (err.message != "Output stream closed") throw err;
+					if (err.message !== 'Output stream closed') throw err;
 				});
 
 				// Set audio format and begin streaming
@@ -166,7 +227,7 @@ app.get('/stream', (req, res) => {
 				res.writeHead(500);
 				res.end(`Error loading stream for ${id}`);
 			}
-			
+
 		});
 	}
 });
@@ -177,7 +238,8 @@ app.get('/stream', (req, res) => {
 app.get('/tracks', (req, res) => {
 	// Are we missing the q -parameter or is it empty?
 	var q = parseQuery(req.query.q);
-	if (!q.q) {
+
+	if (!q.q && q.qRequired) {
 		res.writeHead(200);
 		res.end('');
 	} else {
@@ -186,16 +248,10 @@ app.get('/tracks', (req, res) => {
 
 		run(function*(gen) {
 			var tracks;
-			switch (q.cmd && q.cmd.toLowerCase()) {
-				case 'al':
-					tracks = yield getAlbumTracks(q.q, gen());
-					break;
-				case 'pl':
-					tracks = yield getPlaylistTracks(q.q, gen());
-					break;
-				default:
-					tracks = yield getTracks(q.q, gen());
-					break;
+			if (q.cmd && CMD[q.cmd]) {
+				tracks = yield CMD[q.cmd].fn(q.q, gen());
+			} else {
+				tracks = yield getTracks(q.q, gen());
 			}
 
 			var content = parseTracks(tracks);
@@ -208,7 +264,7 @@ app.get('/tracks', (req, res) => {
 });
 
 // Script execution begins here
-if (API_KEY.androidId !== "-1" && API_KEY.masterToken !== '-1') {
+if (API_KEY.androidId !== '-1' && API_KEY.masterToken !== '-1') {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
 	// Audioshield expects HTTPS port 443
 	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, () => {
