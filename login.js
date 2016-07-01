@@ -3,7 +3,6 @@ const read = require('read');
 const run = require('gen-run');
 const PlayMusic = require('playmusic');
 const API_FILE = './apikey.json';
-var apikey = require(API_FILE);
 var pm = new PlayMusic();
 
 
@@ -15,6 +14,7 @@ run(function* (gen) {
 		if (err) 
 			console.log('Email or Password incorrect.');
 		else {
+			var apikey = {};
 			apikey.androidId = resp.androidId;
 			apikey.masterToken = resp.masterToken;
 			fs.writeFile(API_FILE, JSON.stringify(apikey, null, 4), (err) => {
