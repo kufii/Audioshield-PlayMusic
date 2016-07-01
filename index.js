@@ -227,7 +227,6 @@ app.get('/stream', (req, res) => {
 				res.writeHead(500);
 				res.end(`Error loading stream for ${id}`);
 			}
-
 		});
 	}
 });
