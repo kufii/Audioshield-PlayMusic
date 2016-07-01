@@ -28,17 +28,24 @@ var options = {
 
 var parseQuery = function(q) {
 	q = q && q.trim();
-	if (!q || q === '-') return { qRequired: true };
-	if (q.charAt(0) !== '-') return { q: q, qRequired: true };
+	if (!q || q === '-') return { };
+	if (q.charAt(0) !== '-') return { q: q };
 
 	var indexOfSpace = q.indexOf(' ');
-	if (indexOfSpace < 0) return { cmd: q.slice(1) };
-	var cmd = q.slice(1, indexOfSpace);
-	var qRequired = true;
-	if (CMD[cmd] && !CMD[cmd].qRequired) {
-		qRequired = false;
+	var cmd;
+	if (indexOfSpace < 0) {
+		cmd = q.slice(1);
+	} else {
+		cmd = q.slice(1, indexOfSpace);
 	}
-	return { cmd: cmd, q: q.slice(indexOfSpace + 1), qRequired: qRequired };
+	cmd = cmd.toLowerCase();
+
+	var qOptional = false;
+	if (CMD[cmd] && CMD[cmd].qOptional) {
+		qOptional = true;
+	}
+
+	return { cmd: cmd, q: (indexOfSpace < 0) ? null : q.slice(indexOfSpace + 1), qOptional: qOptional };
 };
 
 var parseTracks = function(tracks) {
@@ -175,16 +182,14 @@ var getFavoriteTracks = function(q, callback) {
 // Setup the list of commands
 const CMD = {
 	al: {
-		fn: getAlbumTracks,
-		qRequired: true
+		fn: getAlbumTracks
 	},
 	pl: {
-		fn: getPlaylistTracks,
-		qRequired: true
+		fn: getPlaylistTracks
 	},
 	fav: {
 		fn: getFavoriteTracks,
-		qRequired: false
+		qOptional: true
 	}
 };
 
@@ -238,7 +243,7 @@ app.get('/tracks', (req, res) => {
 	// Are we missing the q -parameter or is it empty?
 	var q = parseQuery(req.query.q);
 
-	if (!q.q && q.qRequired) {
+	if (!q.q && !q.qOptional) {
 		res.writeHead(200);
 		res.end('');
 	} else {
