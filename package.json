@@ -11,6 +11,7 @@
     "fluent-ffmpeg": "^2.1.0",
     "playmusic": "^2.1.1",
     "read": "^1.0.7",
-    "gen-run": "^0.1.2"
+    "gen-run": "^0.1.2",
+    "fuse.js": "^2.2.0"
   }
 }

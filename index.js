@@ -14,6 +14,7 @@ const ffmpeg = require('fluent-ffmpeg');
 const https = require('https');
 const express = require('express');
 const run = require('gen-run');
+const Fuse = require('fuse.js');
 
 var app = express();
 var pm = new PlayMusic();
@@ -60,6 +61,7 @@ var parseTracks = function(tracks) {
 var getMusic = function(q, entryType, callback) {
 	pm.search(q, 20, (err, data) => {
 		if (err) return callback(err);
+		if (!data.entries) return callback(null, []);
 
 		var entries = data.entries.filter((entry) => {
 			return entry.type === entryType;
@@ -84,11 +86,41 @@ var getAlbumTracks = function(q, callback) {
 			var albums = yield getMusic(q, '3', gen());
 			albums = albums.slice(0, 3);
 			var tracks = [];
-			console.log(albums.length);
 			for (var album of albums) {
 				var albumTracks = yield pm.getAlbum(album.album.albumId, true, gen());
 				tracks = tracks.concat(albumTracks.tracks);
 			}
+			callback(null, tracks);
+		} catch (err) {
+			callback(err);
+		}
+	});
+};
+
+var getPlaylistTracks = function(q, callback) {
+	run(function*(gen) {
+		try {
+			var playlistNames = yield pm.getPlayLists(gen());
+			if (!playlistNames.data) return callback(null, []);
+			var fuse = new Fuse(playlistNames.data.items, { keys: ['name'] });
+			playlistNames = fuse.search(q);
+			if (playlistNames.length === 0) return callback(null, []);
+
+			var playlistTracks = yield pm.getPlayListEntries(gen());
+			if (!playlistTracks.data) return callback(null, []);
+
+			console.log(playlistTracks.data.items);
+			var tracks = [];
+			playlistNames.forEach((name) => {
+				playlistTracks.data.items.forEach((track) => {
+					// filter out uploaded track because they're missing all the required metadata. todo: find workaround.
+					if (track.source === '2' && name.id === track.playlistId) {
+						track.track.nid = track.track.storeId;
+						tracks.push(track.track);
+					}
+				});
+			});
+
 			callback(null, tracks);
 		} catch (err) {
 			callback(err);
@@ -111,25 +143,31 @@ app.get('/stream', (req, res) => {
 		console.log(`Got a stream request for Play Music id: ${id}`);
 
 		run(function*(gen) {
-			var url = yield pm.getStreamUrl(id, gen());
+			try  {
+				var url = yield pm.getStreamUrl(id, gen());
 
-			// Set the HTTP-headers to audio/mpeg
-			res.setHeader('Content-Type', 'audio/mpeg');
-			res.writeHead(200);
+				// Set the HTTP-headers to audio/mpeg
+				res.setHeader('Content-Type', 'audio/mpeg');
+				res.writeHead(200);
 
-			// Initialize ffmpeg, which is used for the mp3-conversion
-			proc = new ffmpeg({ source: url });
+				// Initialize ffmpeg, which is used for the mp3-conversion
+				proc = new ffmpeg({ source: url });
 
-			// Error handling
-			proc.on('error', (err, stdout, stderr) => {
-				// "Output stream closed" error message is ignored, it is caused by browsers doing a double HTTP-request
-				if (err.message != "Output stream closed") throw err;
-			});
+				// Error handling
+				proc.on('error', (err, stdout, stderr) => {
+					// "Output stream closed" error message is ignored, it is caused by browsers doing a double HTTP-request
+					if (err.message != "Output stream closed") throw err;
+				});
 
-			// Set audio format and begin streaming
-			proc.toFormat('mp3');
-			proc.audioBitrate(320);
-			proc.writeToStream(res, { end: true });
+				// Set audio format and begin streaming
+				proc.toFormat('mp3');
+				proc.audioBitrate(320);
+				proc.writeToStream(res, { end: true });
+			} catch (err) {
+				res.writeHead(500);
+				res.end(`Error loading stream for ${id}`);
+			}
+			
 		});
 	}
 });
@@ -152,6 +190,9 @@ app.get('/tracks', (req, res) => {
 			switch (q.cmd && q.cmd.toLowerCase()) {
 				case 'al':
 					tracks = yield getAlbumTracks(q.q, gen());
+					break;
+				case 'pl':
+					tracks = yield getPlaylistTracks(q.q, gen());
 					break;
 				default:
 					tracks = yield getTracks(q.q, gen());
