@@ -194,11 +194,6 @@ var getUploadedTracks = function(q, callback) {
 	});
 };
 
-// var getUploadedTracks = function(q, callback) {
-// 	run(function*(gen) {
-// 	});
-// };
-
 var getPlaylistTracks = function(q, callback) {
 	run(function*(gen) {
 		try {
