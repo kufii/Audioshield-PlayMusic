@@ -43,11 +43,13 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 # Search Options
 
-By default, the search will search for tracks, but you can start a search with "-" to do a search command.		
+By default, the search will search all tracks on play music, but you can start a search with "-" to do a search command.		
 
 * **Search by Album**: `-al <search>`. This will output the tracks of matching albums.
 * **Search by Playlist**: `-pl <search>`. This will output all tracks in the matching playlists.
 * **Search Thumbed Up Tracks**: `-fav <search>`. This returns all matching thumbed up tracks. The search is optional, you can exclude it to get all thumbed up tracks.
+* **Search Library**: `-lib <search>`. This will return matching tracks in your library.
+* **Search Uploaded**: `-ul <search>`. This will return matching tracks you've uploaded.
 
 # Uninstallation Instructions
 1. Uninstall Fiddler through Windows Control Panel

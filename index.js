@@ -15,6 +15,21 @@ const https = require('https');
 const express = require('express');
 const run = require('gen-run');
 const Fuse = require('fuse.js');
+const FUSE_OPTIONS = {
+	keys: [{
+		name: 'title',
+		weight: 0.4
+	}, {
+		name: 'album',
+		weight: 0.2
+	}, {
+		name: 'artist',
+		weight: 0.2
+	}, {
+		name: 'albumArtist',
+		weight: 0.2
+	}]
+};
 
 var app = express();
 var pm = new PlayMusic();
@@ -25,6 +40,12 @@ var options = {
 	cert: fs.readFileSync('./cert.pem'),
 	passphrase: "audioshield"
 };
+
+// Cached items
+var CACHED_LIBRARY;
+var CACHED_PLAYLIST_NAMES;
+var CACHED_PLAYLIST_TRACKS;
+var CACHED_FAVORITES;
 
 var parseQuery = function(q) {
 	q = q && q.trim();
@@ -55,7 +76,9 @@ var parseTracks = function(tracks) {
 		// Note specially the stream_url -field, which is set to correspond to our /stream HTTPS endpoint
 		soundcloudResponse.title = track.title;
 		soundcloudResponse.id = track.nid;
-		soundcloudResponse.artwork_url = track.albumArtRef[0].url;
+		if (track.albumArtRef) {
+			soundcloudResponse.artwork_url = track.albumArtRef[0].url;
+		}
 		soundcloudResponse.user.username = track.artist;
 		soundcloudResponse.stream_url = `https://api.soundcloud.com/stream?id=${soundcloudResponse.id}`;
 		soundcloudResponse.uri = `https://api.soundcloud.com/stream/${soundcloudResponse.id}`;
@@ -70,7 +93,7 @@ var parseTracks = function(tracks) {
 };
 
 var getMusic = function(q, entryType, callback) {
-	pm.search(q, 20, (err, data) => {
+	pm.search(q, 50, (err, data) => {
 		if (err) return callback(err);
 		if (!data.entries) return callback(null, []);
 
@@ -108,21 +131,120 @@ var getAlbumTracks = function(q, callback) {
 	});
 };
 
+var getLibrary = function(callback) {
+	run(function*(gen) {
+		try {
+			if (!CACHED_LIBRARY) {
+				var lib = yield pm.getAllTracks(gen());
+				if(!lib.data) {
+					CACHED_LIBRARY = [];
+				} else {
+					// each page only has 1000 tracks, get every page
+					var items = lib.data.items;
+					while (lib.nextPageToken) {
+						lib = yield pm.getAllTracks({ nextPageToken: lib.nextPageToken }, gen());
+						if (lib.data) {
+							items = items.concat(lib.data.items);
+						}
+					}
+
+					items = items.map((item) => {
+						if (!item.storeId) {
+							item.nid = item.id;
+						}
+						return item;
+					});
+
+					CACHED_LIBRARY = items;
+				}
+			}
+			callback(null, CACHED_LIBRARY);
+		} catch (err) {
+			callback(err);
+		}
+	});
+};
+
+var getLibraryTracks = function(q, callback) {
+	run(function*(gen) {
+		try {
+			var tracks = yield getLibrary(gen());
+			var fuse = new Fuse(tracks, FUSE_OPTIONS);
+			tracks = fuse.search(q);
+			callback(null, tracks.slice(0, 50));
+		} catch (err) {
+			callback(err);
+		}
+	});
+};
+
+var getUploadedTracks = function(q, callback) {
+	run(function*(gen) {
+		try {
+			var tracks = yield getLibrary(gen());
+			tracks = tracks.filter((track) => {
+				return (typeof track.storeId === 'undefined');
+			});
+			var fuse = new Fuse(tracks, FUSE_OPTIONS);
+			tracks = fuse.search(q);
+			callback(null, tracks.slice(0, 50));
+		} catch (err) {
+			callback(err);
+		}
+	});
+};
+
+// var getUploadedTracks = function(q, callback) {
+// 	run(function*(gen) {
+// 	});
+// };
+
 var getPlaylistTracks = function(q, callback) {
 	run(function*(gen) {
 		try {
-			var playlistNames = yield pm.getPlayLists(gen());
-			if (!playlistNames.data) return callback(null, []);
+			var playlistNames;
+			if (CACHED_PLAYLIST_NAMES) {
+				if (CACHED_PLAYLIST_NAMES.length === 0) return callback(null, []);
+				playlistNames = CACHED_PLAYLIST_NAMES;
+			} else {
+				playlistNames = yield pm.getPlayLists(gen());
+				if (!playlistNames.data) {
+					CACHED_PLAYLIST_NAMES = [];
+					return callback(null, []);
+				}
+			}
+
 			var fuse = new Fuse(playlistNames.data.items, { keys: ['name'] });
 			playlistNames = fuse.search(q);
 			if (playlistNames.length === 0) return callback(null, []);
 
-			var playlistTracks = yield pm.getPlayListEntries(gen());
-			if (!playlistTracks.data) return callback(null, []);
+
+			var playlistTracks;
+			if (CACHED_PLAYLIST_TRACKS) {
+				if (CACHED_PLAYLIST_TRACKS.length === 0) return callback(null, []);
+				playlistTracks = CACHED_PLAYLIST_TRACKS;
+			} else {
+				var entries = yield pm.getPlayListEntries(gen());
+				if (!entries.data) {
+					CACHED_PLAYLIST_TRACKS = [];
+					return callback(null, []);
+				}
+
+				// each page only has 1000 tracks, get every page
+				playlistTracks = entries.data.items;
+				while (entries.nextPageToken) {
+					entries = yield pm.getPlayListEntries({ nextPageToken: entries.nextPageToken }, gen());
+					if (entries.data) {
+						playlistTracks = playlistTracks.concat(playlistTracks.data.items);
+					}
+				}
+
+				CACHED_PLAYLIST_TRACKS = playlistTracks;
+			}
 
 			var tracks = [];
 			playlistNames.forEach((name) => {
-				playlistTracks.data.items.forEach((track) => {
+				playlistTracks.forEach((track) => {
 					// filter out uploaded track because they're missing all the required metadata. todo: find workaround.
 					if (track.source === '2' && name.id === track.playlistId) {
 						track.track.nid = track.track.storeId;
@@ -141,35 +263,31 @@ var getPlaylistTracks = function(q, callback) {
 var getFavoriteTracks = function(q, callback) {
 	run(function*(gen) {
 		try {
-			var favs = yield pm.getFavorites(gen());
-			if (!favs.track) return callback(null, []);
-			favs = favs.track;
+			var favs;
+			if (CACHED_FAVORITES) {
+				if (CACHED_FAVORITES.length === 0) return callback(null, []);
+				favs = CACHED_FAVORITES;
+			} else {
+				favs = yield pm.getFavorites(gen());
+				if (!favs.track) {
+					CACHED_FAVORITES = [];
+					return callback(null, []);
+				}
+
+				favs = favs.track.map((fav) => {
+					fav.nid = fav.id;
+					fav.albumArtRef = [{ url: fav.imageBaseUrl }];
+					return fav;
+				});
+
+				CACHED_FAVORITES = favs;
+			}
 
 			if (q) {
 				// if there's a search query filter the results
-				var fuse = new Fuse(favs, {
-					keys: [{
-						name: 'title',
-						weight: 0.4
-					}, {
-						name: 'album',
-						weight: 0.2
-					}, {
-						name: 'artist',
-						weight: 0.2
-					}, {
-						name: 'albumArtist',
-						weight: 0.2
-					}]
-				});
+				var fuse = new Fuse(favs, FUSE_OPTIONS);
 				favs = fuse.search(q);
 			}
-
-			favs = favs.map((fav) => {
-				fav.nid = fav.id;
-				fav.albumArtRef = [{ url: fav.imageBaseUrl }];
-				return fav;
-			});
 
 			callback(null, favs);
 		} catch (err) {
@@ -190,6 +308,12 @@ const CMD = {
 	fav: {
 		fn: getFavoriteTracks,
 		qOptional: true
+	},
+	lib: {
+		fn: getLibraryTracks
+	},
+	ul: {
+		fn: getUploadedTracks
 	}
 };
 
