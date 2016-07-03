@@ -2,9 +2,9 @@
 
 A Proxy server for Audioshield that replaces Soundcloud support with Play Music support. This is a fork of Audioshield-Tubifier by reddit user -olli-.
 
-Major dependencies:  
-Fiddler, a Web Debugging proxy capable of HTTPS decryption.  
-Node.js, Javascript engine.
+Major dependencies: 
+* Node.js, Javascript engine.
+* ffmpeg
 
 # Setting up Account
 
@@ -18,21 +18,15 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.2.0), visit https://nodejs.org/en/. Verify installation with command 'node --version' (without quotes) in Windows Command Prompt.
 2. Open Windows Command Prompt and issue command `ffmpeg`. If you get a message saying the command isn't recognized, you need to install ffmpeg by downloading either 32-bit or 64-bit static version of ffmpeg from here: https://ffmpeg.zeranoe.com/builds/. Inside the zip-file you can find a bin-folder, inside which is the ffmpeg.exe -file. Copy this file to the system32 -folder which is inside your Windows folder. Close and reopen the Command Prompt and issue the same command again to verify installation.
-3. Install Fiddler Web Debugger (version for .NET4) from http://www.telerik.com/fiddler. Giving a valid email address in the download form is not required. Fiddler will decrypt the HTTPS-traffic from Audioshield.
-4. Install the CertMaker add-on for Fiddler: http://www.telerik.com/blogs/faq---certificates-in-fiddler. Direct link: http://fiddler2.com/r/?fiddlercertmaker.
-5. Configure Fiddler to decrypt HTTPS traffic: http://docs.telerik.com/fiddler/Configure-Fiddler/Tasks/DecryptHTTPS. Let Fiddler install a Root Certificate by clicking 'Yes' twice. If you accidently hit 'No', go to 'Actions' button -> Trust Root Certificate. http://docs.telerik.com/fiddler/Configure-Fiddler/Tasks/TrustFiddlerRootCert
-6. In Fiddler go to  Tools -> Fiddler Options -> HTTPS and check "ignore server certificate errors".
-7. Redirect soundcloud API calls. in Fiddler, go to Tools -> Hosts. Check "Enable Remapping of Requests" and enter `localhost api.soundcloud.com` in the textbox.
-8. Make sure File -> Capture Traffic is enabled in Fiddler.
-9. [Download a zip of this project](https://github.com/kufii/Audioshield-PlayMusic/archive/master.zip) and extract it anywhere.
-10. Open a command prompt, navigate to the directory and run `npm install`
-11. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
-12. Run `node login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
-13. Open up config.json and make sure the correct paths are set for Steam.exe and Fiddler.exe
+3. [Download a zip of this project](https://github.com/kufii/Audioshield-PlayMusic/archive/master.zip) and extract it anywhere.
+4. Open a command prompt, navigate to the directory and run `npm install`
+5. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
+6. Run `node login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
+7. Open up config.json and make sure the correct path is set for Steam.exe 
 
 # Launch Instructions
 
-1. Launch start-game.bat or Audioshield-PlayMusic.exe. These Launchers will launch the server, Fiddler, and Audioshield, and will close them all when Audioshield is closed.
+1. Launch start-game.bat or Audioshield-PlayMusic.exe. These launchers will launch the server, proxy, and Audioshield, and will close them all when Audioshield is closed.
 
 # Adding Launcher to SteamVR
 
@@ -52,10 +46,8 @@ By default, the search will search all tracks on play music, but you can start a
 * **Search Uploaded**: `-up <search>`. This will return matching tracks you've uploaded.
 
 # Uninstallation Instructions
-1. Uninstall Fiddler through Windows Control Panel
-2. Uninstall Fiddler Root certificate: issue command 'CertMgr.msc' (without quotes) in Windows Run-dialog. Navigate to folder 'Trusted Root Certification Authorities' -> 'Certificates'. Right click the 'DO_NOT_TRUST_FiddlerRoot' certificate and select 'delete'.
-3. Uninstall Node.js through Windows Control Panel
-4. Delete the Audioshield-PlayMusic folder
+1. Uninstall Node.js through Windows Control Panel
+2. Delete the Audioshield-PlayMusic folder
 
 
 

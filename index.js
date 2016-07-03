@@ -37,8 +37,7 @@ var pm = new PlayMusic();
 // Setting a dummy HTTPS certificate
 var options = {
 	key: fs.readFileSync('./key.pem'),
-	cert: fs.readFileSync('./cert.pem'),
-	passphrase: "audioshield"
+	cert: fs.readFileSync('./cert.pem')
 };
 
 // Cached items
@@ -387,7 +386,7 @@ app.get('/tracks', (req, res) => {
 });
 
 // Script execution begins here
-if (API_KEY.androidId !== '-1' && API_KEY.masterToken !== '-1') {
+if (API_KEY.androidId && API_KEY.masterToken) {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
 	// Audioshield expects HTTPS port 443
 	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, () => {

@@ -1,6 +1,6 @@
 {
 	"paths": {
-		"steam": "C:\\Program Files (x86)\\Steam\\Steam.exe",
-		"fiddler": "C:\\Program Files (x86)\\Fiddler2\\Fiddler.exe"
-	}
+		"steam": "C:\\Program Files (x86)\\Steam\\Steam.exe"
+	},
+	"port": 1234
 }
