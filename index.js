@@ -307,7 +307,7 @@ const CMD = {
 	lib: {
 		fn: getLibraryTracks
 	},
-	ul: {
+	up: {
 		fn: getUploadedTracks
 	}
 };
