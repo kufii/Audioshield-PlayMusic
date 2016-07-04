@@ -347,6 +347,7 @@ app.get('/stream', (req, res) => {
 				proc.audioBitrate(320);
 				proc.writeToStream(res, { end: true });
 			} catch (err) {
+				console.log(`Error loading stream for ${id}`);
 				res.writeHead(500);
 				res.end(`Error loading stream for ${id}`);
 			}
