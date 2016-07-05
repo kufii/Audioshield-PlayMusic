@@ -52,6 +52,9 @@ Set-Proxy-Settings "localhost:$($config.port)" $true
 echo "starting Gmusic API Server, Proxy, and Audioshield"
 $serverProc = Start-Process node index.js -PassThru
 $proxyProc = Start-Process node proxy.js -PassThru
+
+# for some reason my display driver crashes if I don't do a short sleep before launching audioshield
+Start-Sleep 3
 $audioShieldProc = Start-Process $config.paths.steam "-applaunch",$audioShieldSteamId -PassThru
 
 # wait a few seconds to give audioshield a chance to launch
