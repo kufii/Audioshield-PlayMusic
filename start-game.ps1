@@ -48,6 +48,7 @@ $ogProxy = Get-Proxy-Settings
 Try
 {
     # set proxy settings
+    echo "Changing proxy settings"
     Set-Proxy-Settings "localhost:$($config.port)" $true
 
     # start node.js server, proxy and audioshield processes
