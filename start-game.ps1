@@ -45,34 +45,43 @@ $audioShieldProcName = "Audioshield"
 # save original proxy settings
 $ogProxy = Get-Proxy-Settings
 
-# set proxy settings
-Set-Proxy-Settings "localhost:$($config.port)" $true
+Try
+{
+    # set proxy settings
+    Set-Proxy-Settings "localhost:$($config.port)" $true
 
-# start node.js server, proxy and audioshield processes
-echo "starting Gmusic API Server, Proxy, and Audioshield"
-$serverProc = Start-Process node index.js -PassThru
-$proxyProc = Start-Process node proxy.js -PassThru
+    # start node.js server, proxy and audioshield processes
+    echo "starting Gmusic API Server, Proxy, and Audioshield"
+    $serverProc = Start-Process node index.js -PassThru
+    $proxyProc = Start-Process node proxy.js -PassThru
 
-# for some reason my display driver crashes if I don't do a short sleep before launching audioshield
-Start-Sleep 3
-$audioShieldProc = Start-Process $config.paths.steam "-applaunch",$audioShieldSteamId -PassThru
+    # for some reason my display driver crashes if I don't do a short sleep before launching audioshield
+    Start-Sleep 3
+    $audioShieldProc = Start-Process $config.paths.steam "-applaunch",$audioShieldSteamId -PassThru
 
-# wait a few seconds to give audioshield a chance to launch
-Start-Sleep 30
+    # wait a few seconds to give audioshield a chance to launch
+    Start-Sleep 30
 
-# start polling running processes for the audioshield process
-Do {
-    Start-Sleep 5
-    echo "checking if Audioshield is still running"
-    $audioShieldRunning = Get-Process $audioShieldProcName -ErrorAction SilentlyContinue
-} While ($audioShieldRunning)
+    # start polling running processes for the audioshield process
+    Do {
+        Start-Sleep 5
+        echo "checking if Audioshield is still running"
+        $audioShieldRunning = Get-Process $audioShieldProcName -ErrorAction SilentlyContinue
+    } While ($audioShieldRunning)
 
-echo "Audioshield closed, closing server and proxy"
+    echo "Audioshield closed, closing server and proxy"
 
-# once we detect that the process has closed we should close the proxy and the node.js server
-Stop-Process $serverProc.ID
-Stop-Process $proxyProc.ID
-
-# restore original proxy settings
-echo "restoring to original proxy: server=$($ogProxy.ProxyServer) enabled=$($ogProxy.ProxyEnable)"
-Set-Proxy-Settings $ogProxy.ProxyServer $ogProxy.ProxyEnable
+    # once we detect that the process has closed we should close the proxy and the node.js server
+    Stop-Process $serverProc.ID
+    Stop-Process $proxyProc.ID
+}
+Catch
+{
+    echo "Something went wrong, resetting proxy..."
+}
+Finally
+{
+    # restore original proxy settings
+    echo "restoring to original proxy: server=$($ogProxy.ProxyServer) enabled=$($ogProxy.ProxyEnable)"
+    Set-Proxy-Settings $ogProxy.ProxyServer $ogProxy.ProxyEnable
+}
