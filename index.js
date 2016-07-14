@@ -392,7 +392,7 @@ if (API_KEY.androidId && API_KEY.masterToken) {
 	// Audioshield expects HTTPS port 443
 	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, () => {
 		var httpsServer = https.createServer(options, app);
-		httpsServer.listen(443);
+		httpsServer.listen(443, '127.0.0.1');
 		console.log('Server running');
 		console.log('CTRL+C to shutdown');
 	});
