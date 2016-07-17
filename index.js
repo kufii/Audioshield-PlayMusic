@@ -357,7 +357,6 @@ const CMD = {
 // Expected URL: https://api.soundcloud.com/tracks?q=<SearchTerms>
 app.get('/tracks', (req, res) => {
 	// Are we missing the q -parameter or is it empty?
-	console.log('tracks');
 	var q = parseQuery(req.query.q);
 
 	if (!q.q && !q.qOptional) {
