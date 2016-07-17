@@ -44,6 +44,7 @@ By default, the search will search all tracks on play music, but you can start a
 * **Search Thumbed Up Tracks**: `-fav <search>`. This returns all matching thumbed up tracks. The search is optional, you can exclude it to get all thumbed up tracks.
 * **Search Library**: `-lib <search>`. This will return matching tracks in your library.
 * **Search Uploaded**: `-up <search>`. This will return matching tracks you've uploaded.
+* **Search SoundCloud**: `-sc <search>`. This will fallback to the original SoundCloud Search.
 
 ## Uninstallation Instructions
 1. Uninstall Node.js through Windows Control Panel

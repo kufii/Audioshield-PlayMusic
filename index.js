@@ -12,6 +12,7 @@ const fs = require('fs');
 const PlayMusic = require('playmusic');
 const ffmpeg = require('fluent-ffmpeg');
 const https = require('https');
+const http = require('http');
 const express = require('express');
 const run = require('gen-run');
 const Fuse = require('fuse.js');
@@ -73,14 +74,15 @@ var parseTracks = function(tracks) {
 		var soundcloudResponse = JSON.parse(JSON.stringify(soundcloudTemplate));
 		// Fill the template with values from the Play Music API response
 		// Note specially the stream_url -field, which is set to correspond to our /stream HTTPS endpoint
+		// Start the id off with [pm] to differentiate between SoundCloud and Play Music
 		soundcloudResponse.title = track.title;
-		soundcloudResponse.id = track.nid;
+		soundcloudResponse.id = `PM_${track.nid}`;
 		if (track.albumArtRef) {
 			soundcloudResponse.artwork_url = track.albumArtRef[0].url;
 		}
 		soundcloudResponse.user.username = track.artist;
-		soundcloudResponse.stream_url = `https://api.soundcloud.com/stream?id=${soundcloudResponse.id}`;
-		soundcloudResponse.uri = `https://api.soundcloud.com/stream/${soundcloudResponse.id}`;
+		soundcloudResponse.stream_url = `https://api.soundcloud.com/tracks/${soundcloudResponse.id}/stream`;
+		soundcloudResponse.uri = soundcloudResponse.stream_url;
 		soundcloudResponse.permalink = soundcloudResponse.id;
 		soundcloudResponse.permalink_url = soundcloudResponse.uri;
 
@@ -89,6 +91,45 @@ var parseTracks = function(tracks) {
 
 	// Return the constructed output in JSON-format
 	return JSON.stringify(output);
+};
+
+var getSoundCloudUrl = function(originalUrl, callback) {
+	try {
+		http.get({
+			hostname: 'api.soundcloud.com',
+			path: originalUrl
+		}, (response) => {
+			var body = '';
+			response.on('data', (d) => {
+				body += d;
+			});
+			response.on('end', () => {
+				var parsed = JSON.parse(body);
+				callback(null, parsed.location);
+			});
+		});
+	} catch (err) {
+		callback(err);
+	}
+};
+
+var getSoundCloudTracks = function(q, client_id, callback) {
+	try {
+		http.get({
+			hostname: 'api.soundcloud.com',
+			path: encodeURI(`/tracks?q=${q}&client_id=${client_id}`)
+		}, (response) => {
+			var body = '';
+			response.on('data', (d) => {
+				body += d;
+			});
+			response.on('end', () => {
+				callback(null, JSON.parse(body));
+			});
+		});
+	} catch (err) {
+		callback(err);
+	}
 };
 
 var getMusic = function(q, entryType, callback) {
@@ -311,55 +352,12 @@ const CMD = {
 	}
 };
 
-// Here we register a HTTPS endpoint that streams a given Play Music ID as an mp3-file
-// Expected URL: https://api.soundcloud.com/stream?id=<ID>
-app.get('/stream', (req, res) => {
-	// Are we missing the id -parameter or is it empty?
-	if (!req.query.id) {
-		res.writeHead(500);
-		res.end("parameter 'id' missing or empty");
-	} else {
-		// id -parameter found
-		// Audioshield appends any stream url it gets with another query variable, so we have to split it, and only use the first part
-		var id = req.query.id.split("?")[0];
-
-		console.log(`Got a stream request for Play Music id: ${id}`);
-
-		run(function*(gen) {
-			try {
-				var url = yield pm.getStreamUrl(id, gen());
-
-				// Set the HTTP-headers to audio/mpeg
-				res.setHeader('Content-Type', 'audio/mpeg');
-				res.writeHead(200);
-
-				// Initialize ffmpeg, which is used for the mp3-conversion
-				proc = new ffmpeg({ source: url });
-
-				// Error handling
-				proc.on('error', (err, stdout, stderr) => {
-					// "Output stream closed" error message is ignored, it is caused by browsers doing a double HTTP-request
-					if (err.message !== 'Output stream closed') throw err;
-				});
-
-				// Set audio format and begin streaming
-				proc.toFormat('mp3');
-				proc.audioBitrate(320);
-				proc.writeToStream(res, { end: true });
-			} catch (err) {
-				console.error(err);
-				res.writeHead(500);
-				res.end(`Error loading stream for ${id}`);
-			}
-		});
-	}
-});
-
 // Here we register a HTTPS endpoint that handles searching Play Music for tracks
 // This endpoint format is set by Audioshield, so we have to follow it
 // Expected URL: https://api.soundcloud.com/tracks?q=<SearchTerms>
 app.get('/tracks', (req, res) => {
 	// Are we missing the q -parameter or is it empty?
+	console.log('tracks');
 	var q = parseQuery(req.query.q);
 
 	if (!q.q && !q.qOptional) {
@@ -370,20 +368,83 @@ app.get('/tracks', (req, res) => {
 		console.log(`Got a search request: ${req.query.q}`);
 
 		run(function*(gen) {
-			var tracks;
-			if (q.cmd && CMD[q.cmd]) {
-				tracks = yield CMD[q.cmd].fn(q.q, gen());
-			} else {
-				tracks = yield getTracks(q.q, gen());
+			try {
+				var tracks, content;
+
+				if (q.cmd === 'sc') {
+					// redirect to OG SoundCloud API
+					console.log('Redirecting to SoundCloud API...');
+					if (req.query.client_id) {
+						tracks = yield getSoundCloudTracks(q.q, req.query.client_id, gen());
+						content = JSON.stringify(tracks);
+					} else {
+						console.log('SoundCloud API client_id missing.');
+						res.writeHead(200);
+						res.end('');
+						return;
+					}
+				} else {
+					if (q.cmd && CMD[q.cmd]) {
+						tracks = yield CMD[q.cmd].fn(q.q, gen());
+					} else {
+						tracks = yield getTracks(q.q, gen());
+					}
+
+					content = parseTracks(tracks);
+				}
+
+				// Write contents to browser
+				res.writeHead(200);
+				res.end(content);
+			} catch (err) {
+				console.error(err);
+				res.writeHead(500);
+				res.end(`Error loading tracks for ${req.query.q}`);
 			}
-
-			var content = parseTracks(tracks);
-
-			// Write contents to browser
-			res.writeHead(200);
-			res.end(content);
 		});
 	}
+});
+
+// Here we register a HTTPS endpoint that streams a given Play Music ID as an mp3-file
+// Return a play music id if it starts with PM_, else redirect to original SC id
+app.get('/tracks/:id/stream', (req, res) => {
+	var id = req.params.id;
+	run(function*(gen) {
+		try {
+			var url;
+			if (id.startsWith('PM_')) {
+				// parse out the PM_
+				id = id.substring(3);
+				console.log(`Got a stream request for Play Music id: ${id}`);
+				url = yield pm.getStreamUrl(id, gen());
+			} else {
+				console.log(`Got a stream request for SoundCloud id: ${id}`);
+				url = yield getSoundCloudUrl(req.originalUrl, gen());
+			}
+
+			// Set the HTTP-headers to audio/mpeg
+			res.setHeader('Content-Type', 'audio/mpeg');
+			res.writeHead(200);
+
+			// Initialize ffmpeg, which is used for the mp3-conversion
+			proc = new ffmpeg({ source: url });
+
+			// Error handling
+			proc.on('error', (err, stdout, stderr) => {
+				// "Output stream closed" error message is ignored, it is caused by browsers doing a double HTTP-request
+				if (err.message !== 'Output stream closed') throw err;
+			});
+
+			// Set audio format and begin streaming
+			proc.toFormat('mp3');
+			proc.audioBitrate(320);
+			proc.writeToStream(res, { end: true });
+		} catch (err) {
+			console.error(err);
+			res.writeHead(500);
+			res.end(`Error loading stream for ${req.params.id}`);
+		}
+	});
 });
 
 // Script execution begins here
