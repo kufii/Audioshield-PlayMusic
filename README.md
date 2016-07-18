@@ -16,7 +16,7 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 ## Installation Instructions
 
-1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.2.0), visit https://nodejs.org/en/. Verify installation with command 'node --version' (without quotes) in Windows Command Prompt.
+1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.2.0), visit https://nodejs.org/en/. Verify installation with command `node --version` in Windows Command Prompt.
 2. Open Windows Command Prompt and issue command `ffmpeg`. If you get a message saying the command isn't recognized, you need to install ffmpeg by downloading either 32-bit or 64-bit static version of ffmpeg from here: https://ffmpeg.zeranoe.com/builds/. Inside the zip-file you can find a bin-folder, inside which is the ffmpeg.exe -file. Copy this file to the system32 -folder which is inside your Windows folder. Close and reopen the Command Prompt and issue the same command again to verify installation.
 3. [Download a zip of this project](https://github.com/kufii/Audioshield-PlayMusic/archive/master.zip) and extract it anywhere.
 4. Open a command prompt, navigate to the directory and run `npm install`
