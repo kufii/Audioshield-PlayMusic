@@ -78,6 +78,12 @@ Try
         echo "checking if Audioshield is still running"
         $audioShieldRunning = Get-Process $audioShieldProcName -ErrorAction SilentlyContinue
     } While ($audioShieldRunning)
+
+     echo "closing server and proxy"
+
+    # once we detect that the process has closed we should close the proxy and the node.js server
+    Stop-Process $serverProc.ID
+    Stop-Process $proxyProc.ID
 }
 Catch
 {
@@ -89,10 +95,4 @@ Finally
     # restore original proxy settings
     echo "restoring to original proxy: server=$($ogProxy.ProxyServer) enabled=$($ogProxy.ProxyEnable)"
     Set-Proxy-Settings $ogProxy.ProxyServer $ogProxy.ProxyEnable
-
-    echo "closing server and proxy"
-
-    # once we detect that the process has closed we should close the proxy and the node.js server
-    Stop-Process $serverProc.ID
-    Stop-Process $proxyProc.ID
 }
