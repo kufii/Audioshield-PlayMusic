@@ -22,7 +22,7 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 4. Open a command prompt, navigate to the directory and run `npm install`
 5. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
 6. In the command prompt, run `node login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
-7. Open up config.json and make sure the correct path is set for Steam.exe 
+7. Open up config.json and make sure the correct path is set for Audioshield.exe. Remember that folders must be seperated with 2 backslashes, not just 1. 
 
 ## Launch Instructions
 

@@ -1,6 +1,6 @@
 {
 	"paths": {
-		"steam": "C:\\Program Files (x86)\\Steam\\Steam.exe"
+		"audioshield": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Audioshield\\Audioshield.exe"
 	},
 	"port": 1234
 }

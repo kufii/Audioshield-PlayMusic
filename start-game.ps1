@@ -47,8 +47,7 @@ public static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntP
 $file = Get-Content -Raw config.json
 $config = ConvertFrom-Json20 $file
 
-# save Audioshield process name and steam id to variables
-$audioShieldSteamId = 412740
+# save Audioshield process name to variable
 $audioShieldProcName = "Audioshield"
 
 # save original proxy settings
@@ -64,10 +63,7 @@ Try
     echo "starting Gmusic API Server, Proxy, and Audioshield"
     $serverProc = Start-Process node index.js -PassThru
     $proxyProc = Start-Process node proxy.js -PassThru
-
-    # for some reason my display driver crashes if I don't do a short sleep before launching audioshield
-    Start-Sleep 3
-    $audioShieldProc = Start-Process $config.paths.steam "-applaunch",$audioShieldSteamId -PassThru
+    $audioShieldProc = Start-Process $config.paths.audioshield
 
     # wait a few seconds to give audioshield a chance to launch
     Start-Sleep 30
