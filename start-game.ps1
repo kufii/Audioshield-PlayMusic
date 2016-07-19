@@ -5,6 +5,14 @@ if(!(Test-Path node_modules)) {
 }
 
 # functions
+function ConvertFrom-Json20([object] $item){ 
+    add-type -assembly system.web.extensions
+    $ps_js=new-object system.web.script.serialization.javascriptSerializer
+
+    #The comma operator is the array construction operator in PowerShell
+    return ,$ps_js.DeserializeObject($item)
+}
+
 function Get-Proxy-Settings()
 {
     $reg = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
@@ -36,7 +44,8 @@ public static extern bool InternetSetOption(IntPtr hInternet, int dwOption, IntP
 }
 
 # load config file
-$config = Get-Content -Raw config.json | ConvertFrom-Json
+$file = Get-Content -Raw config.json
+$config = ConvertFrom-Json20 $file
 
 # save Audioshield process name and steam id to variables
 $audioShieldSteamId = 412740
@@ -69,15 +78,10 @@ Try
         echo "checking if Audioshield is still running"
         $audioShieldRunning = Get-Process $audioShieldProcName -ErrorAction SilentlyContinue
     } While ($audioShieldRunning)
-
-    echo "Audioshield closed, closing server and proxy"
-
-    # once we detect that the process has closed we should close the proxy and the node.js server
-    Stop-Process $serverProc.ID
-    Stop-Process $proxyProc.ID
 }
 Catch
 {
+    Write-Error $_.Exception.Message
     echo "Something went wrong, resetting proxy..."
 }
 Finally
@@ -85,4 +89,10 @@ Finally
     # restore original proxy settings
     echo "restoring to original proxy: server=$($ogProxy.ProxyServer) enabled=$($ogProxy.ProxyEnable)"
     Set-Proxy-Settings $ogProxy.ProxyServer $ogProxy.ProxyEnable
+
+    echo "closing server and proxy"
+
+    # once we detect that the process has closed we should close the proxy and the node.js server
+    Stop-Process $serverProc.ID
+    Stop-Process $proxyProc.ID
 }
