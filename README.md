@@ -47,9 +47,12 @@ By default, the search will search all tracks on play music, but you can start a
 * **Search SoundCloud**: `-sc <search>`. This will fallback to the original SoundCloud Search.
 
 ## Troubleshooting
-If you experience an issue where after selecting the song, the difficulty, stage, and shield selection starts looping try the following
+####"When I try to select my difficulty, shield, and stage, it just loops!"
 * Play music on your mobile device and try again
 * Replace node_modules/playmusic/play.js with the following, this is a temporary fix for iOS users while I wait for @jamon to upadate their npm package for the unofficial google music api: http://paste.ee/p/sBKNQ
+
+####"My Internet isn't working after closing Audioshield!"  
+This can happen when you close the powershell window for the launcher prematurely, instead of letting it close by itself. Open up your Windows Proxy settings and turn off the proxy.
 
 ## Uninstallation Instructions
 1. Uninstall Node.js through Windows Control Panel
