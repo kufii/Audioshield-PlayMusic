@@ -46,6 +46,11 @@ By default, the search will search all tracks on play music, but you can start a
 * **Search Uploaded**: `-up <search>`. This will return matching tracks you've uploaded.
 * **Search SoundCloud**: `-sc <search>`. This will fallback to the original SoundCloud Search.
 
+## Troubleshooting
+If you experience an issue where after selecting the song, the difficulty, stage, and shield selection starts looping try the following
+* Play music on your mobile device and try again
+* Replace node_modules/playmusic/play.js with the following, this is a temporary fix for iOS users while I wait for @jamon to upadate their npm package for the unofficial google music api: http://paste.ee/p/sBKNQ
+
 ## Uninstallation Instructions
 1. Uninstall Node.js through Windows Control Panel
 2. Delete the Audioshield-PlayMusic folder
