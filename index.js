@@ -413,7 +413,7 @@ app.get('/tracks/:id/stream', (req, res) => {
 			var url;
 			if (id.startsWith('PM_')) {
 				// parse out the PM_
-				id = id.substring(3);
+				id = id.slice(3);
 				console.log(`Got a stream request for Play Music id: ${id}`);
 				url = yield pm.getStreamUrl(id, gen());
 			} else {
