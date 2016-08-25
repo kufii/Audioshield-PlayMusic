@@ -78,7 +78,7 @@ namespace Launcher
             {
                 // Start game
                 Process.Start(steam, "-applaunch 412740");
-                Console.WriteLine("Started Audioshield");
+                Console.WriteLine("Starting Audioshield");
 
                 // wait for game start up
                 while (true)
@@ -87,6 +87,11 @@ namespace Launcher
                     if (processes.Length > 0)
                     {
                         Console.WriteLine("Found Audioshield");
+                        processes[0].WaitForInputIdle();
+                        Console.WriteLine("Audioshield Started");
+
+                        Thread.Sleep(5000);
+
                         // Set Proxy Settings
                         proxy.ProxyServer = "localhost:" + port;
                         proxy.ProxyEnabled = true;
