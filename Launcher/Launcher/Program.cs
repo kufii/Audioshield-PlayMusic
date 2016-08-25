@@ -47,18 +47,18 @@ namespace Launcher
             if (!hasCleanedUp)
             {
                  // Revert Proxy Settings
-            proxy.ProxyServer = proxy.InitialProxyServer;
-            proxy.ProxyEnabled = proxy.InitialProxyEnabled;
-            proxy.RefreshSystem();
-            // close processes
-            if (myProxy != null && !myProxy.HasExited)
-                myProxy.Kill();
-            if (myServer != null && !myServer.HasExited)
-                myServer.Kill();
+                proxy.ProxyServer = proxy.InitialProxyServer;
+                proxy.ProxyEnabled = proxy.InitialProxyEnabled;
+                proxy.RefreshSystem();
+                // close processes
+                if (myProxy != null && !myProxy.HasExited)
+                    myProxy.Kill();
+                if (myServer != null && !myServer.HasExited)
+                    myServer.Kill();
 
-            hasCleanedUp = true;
+                hasCleanedUp = true;
 
-            Console.WriteLine("Cleanup complete");
+                Console.WriteLine("Cleanup complete");
             }
         }
 
