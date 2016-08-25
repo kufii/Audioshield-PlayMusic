@@ -1,3 +1,8 @@
 node_modules
 apikey.json
 settings.bin
+
+# Visual Sudio
+Launcher/Launcher/bin
+Launcher/Launcher/obj
+Launcher/Launcher/Properties

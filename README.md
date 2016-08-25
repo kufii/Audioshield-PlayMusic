@@ -22,11 +22,11 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 4. Open a command prompt, navigate to the directory and run `npm install`
 5. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
 6. In the command prompt, run `node login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
-7. Open up config.json and make sure the correct path is set for Audioshield.exe. Remember that folders must be seperated with 2 backslashes, not just 1. 
+7. Open up config.ini and make sure the correct path is set for Steam.exe. 
 
 ## Launch Instructions
 
-1. Launch start-game.bat or Audioshield-PlayMusic.exe. These launchers will launch the server, proxy, and Audioshield, and will close them all when Audioshield is closed.
+1. Launch Audioshield-PlayMusic.exe. These launchers will launch the server, proxy, and Audioshield, and will close them all when Audioshield is closed.
 
 ## Adding Launcher to SteamVR
 
@@ -50,9 +50,6 @@ By default, the search will search all tracks on play music, but you can start a
 ####"When I try to select my difficulty, shield, and stage, it just loops!"
 * Play music on your mobile device and try again
 * Replace node_modules/playmusic/play.js with the following, this is a temporary fix for iOS users while I wait for @jamon to upadate their npm package for the unofficial google music api: http://paste.ee/p/sBKNQ
-
-####"My Internet isn't working after closing Audioshield!"  
-This can happen when you close the powershell window for the launcher prematurely, instead of letting it close by itself. Open up your Windows Proxy settings and turn off the proxy.
 
 ## Uninstallation Instructions
 1. Uninstall Node.js through Windows Control Panel

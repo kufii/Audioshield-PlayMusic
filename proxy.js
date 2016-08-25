@@ -1,7 +1,9 @@
 const http = require('http');
 const net = require('net');
 const url = require('url');
-const CONFIG = require('./config.json');
+const fs = require('fs');
+const ini = require('ini');
+const CONFIG = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
 
 // https://nodejs.org/api/http.html#http_event_connect
 // http://stackoverflow.com/questions/20351637/how-to-create-a-simple-http-proxy-in-node-js
@@ -43,7 +45,7 @@ proxy.on('connect', (req, cltSocket, head) => {
 	var host;
 	var port;
 	console.log(req.url);
-	
+
 	if (req.url == 'api.soundcloud.com:443' && req.headers['user-agent'].indexOf('UnityPlayer') !== -1) {
 		// connect to fake soundcloud
 		host = '127.0.0.1';
@@ -70,6 +72,6 @@ proxy.on('connect', (req, cltSocket, head) => {
 });
 
 // now that proxy is running
-proxy.listen(CONFIG.port);
+proxy.listen(CONFIG.Proxy.port);
 console.log('Proxy running');
 console.log('CTRL+C to shutdown');
