@@ -72,6 +72,6 @@ proxy.on('connect', (req, cltSocket, head) => {
 });
 
 // now that proxy is running
-proxy.listen(CONFIG.Proxy.port);
+proxy.listen(CONFIG.Proxy.Port);
 console.log('Proxy running');
 console.log('CTRL+C to shutdown');
