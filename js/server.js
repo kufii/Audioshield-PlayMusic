@@ -36,7 +36,6 @@ const API_KEY = require(path.join(DIR, 'api/apikey.json'));
 const soundcloudTemplate = require(path.join(DIR, 'api/soundcloud_template.json'));
 
 var app = express();
-var proxy;
 var pm = new PlayMusic();
 
 // Setting a dummy HTTPS certificate
@@ -458,7 +457,7 @@ if (API_KEY.androidId && API_KEY.masterToken) {
 		var httpsServer = https.createServer(options, app);
 		httpsServer.listen(443, '127.0.0.1', () => {
 			console.log('Starting Proxy');
-			proxy = spawn('node', [path.join(DIR, 'js/proxy.js')]);
+			spawn('node', [path.join(DIR, 'js/proxy.js')]);
 		});
 		console.log('Server running');
 		console.log('CTRL+C to shutdown');
