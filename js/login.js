@@ -9,22 +9,23 @@ var pm = new PlayMusic();
 
 
 run(function* (gen) {
-	var email = yield read({prompt: 'Email: '}, gen());
-	var password = yield read({prompt: 'Password (generate an app password if using 2 factor authentication): ', silent: true}, gen());
-
-	pm.login({email: email, password: password}, (err, resp) => {
-		if (err)
-			console.log('Email or Password incorrect.');
-		else {
-			var apikey = {};
-			apikey.androidId = resp.androidId;
-			apikey.masterToken = resp.masterToken;
+	var isLoggedIn = false;
+	while (!isLoggedIn) {
+		try {
+			var email = yield read({prompt: 'Email: '}, gen());
+			var password = yield read({prompt: 'Password (generate an app password if using 2 factor authentication): ', silent: true}, gen());
+			var resp = yield pm.login({email: email, password: password}, gen());
+			var apikey = {
+				androidId: resp.androidId,
+				masterToken: resp.masterToken
+			};
 			fs.writeFile(API_FILE, JSON.stringify(apikey, null, 4), (err) => {
-				if (err)
-					console.error(err);
-				else
-					console.log('Successfully logged into Google Play Music.');
+				if (err) console.error(err);
+				else console.log('Successfully logged into Google Play Music.');
 			});
+			isLoggedIn = true;
+		} catch (err) {
+			console.log('Email or Password incorrect.\n');
 		}
-	});
+	}
 });
