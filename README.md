@@ -44,7 +44,6 @@ By default, the search will search all tracks on play music, but you can start a
 ## Troubleshooting
 ####"When I try to select my difficulty, shield, and stage, it just loops!"
 * Play music on your mobile device and try again
-* Replace node_modules/playmusic/play.js with the following, this is a temporary fix for iOS users while I wait for @jamon to upadate their npm package for the unofficial google music api: http://paste.ee/p/sBKNQ
 
 ## Configuration
 
