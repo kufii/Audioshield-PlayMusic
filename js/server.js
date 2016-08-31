@@ -11,6 +11,7 @@ const https = require('https');
 const http = require('http');
 const express = require('express');
 const run = require('gen-run');
+const ini = require('ini');
 const Fuse = require('fuse.js');
 const FUSE_OPTIONS = {
 	keys: [{
@@ -28,8 +29,11 @@ const FUSE_OPTIONS = {
 	}]
 };
 
-// Load the credentails
+// config
 const DIR = path.join(__dirname, '..');
+const CONFIG = ini.parse(fs.readFileSync(path.join(DIR, 'config.ini'), 'utf-8'));
+
+// Load the credentails
 const API_KEY = require(path.join(DIR, 'api/apikey.json'));
 
 // Load a template for an empty response from Soundcloud API. This will be filled with values from the Play Music API.
@@ -439,7 +443,7 @@ app.get('/tracks/:id/stream', (req, res) => {
 
 			// Set audio format and begin streaming
 			proc.toFormat('mp3');
-			proc.audioBitrate(320);
+			proc.audioBitrate(CONFIG.Settings.Bitrate);
 			proc.writeToStream(res, { end: true });
 		} catch (err) {
 			console.error(err);

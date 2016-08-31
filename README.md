@@ -46,6 +46,14 @@ By default, the search will search all tracks on play music, but you can start a
 * Play music on your mobile device and try again
 * Replace node_modules/playmusic/play.js with the following, this is a temporary fix for iOS users while I wait for @jamon to upadate their npm package for the unofficial google music api: http://paste.ee/p/sBKNQ
 
+## Configuration
+
+The following settings can be set in config.ini
+
+* `Steam=<path>`: Path to Steam.exe
+* `Port=<port>`: The port the proxy server will run on. Defaults to **1234**.
+* `Bitrate=<bitrate>`: The bitrate of the audio stream. You can set this to a lower value if it's taking a long time to load songs. Defaults to **320**.
+
 ## Uninstallation Instructions
 1. Uninstall Node.js through Windows Control Panel
 2. Delete the Audioshield-PlayMusic folder
