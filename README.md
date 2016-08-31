@@ -19,7 +19,7 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 ## Launch Instructions
 
-1. Launch Audioshield-PlayMusic.exe. These launchers will launch the server, proxy, and Audioshield, and will close them all when Audioshield is closed.
+1. Launch Audioshield-PlayMusic.exe. This launcher will launch the server, proxy, and Audioshield, and will close them all when Audioshield is closed.
 
 ## Adding Launcher to SteamVR
 
