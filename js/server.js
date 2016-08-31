@@ -285,12 +285,30 @@ var getPlaylistTracks = function(q, callback) {
 			}
 
 			var tracks = [];
+			var lib;
 			playlistNames.forEach((name) => {
 				playlistTracks.forEach((track) => {
 					// filter out uploaded track because they're missing all the required metadata. todo: find workaround.
-					if (track.source === '2' && name.id === track.playlistId) {
-						track.track.nid = track.track.storeId;
-						tracks.push(track.track);
+					console.log(track);
+					if (name.id === track.playlistId) {
+						if (track.source === '1') {
+							// Uploaded Track
+							run(function*(gen) {
+								if (!lib) {
+									lib = yield getLibrary(gen());
+								}
+								lib.some((libTrack) => {
+									if (track.trackId === libTrack.nid) {
+										tracks.push(libTrack);
+										return true;
+									}
+									return false;
+								});
+							});
+						} else {
+							track.track.nid = track.track.storeId;
+							tracks.push(track.track);
+						}
 					}
 				});
 			});
@@ -458,6 +476,14 @@ if (API_KEY.androidId && API_KEY.masterToken) {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
 	// Audioshield expects HTTPS port 443
 	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, () => {
+		// Cache Library
+		console.log('Caching library...');
+		getLibrary((err) => {
+			if (err) console.error(err);
+			else console.log('Library cached.');
+		});
+
+		// Start server
 		var httpsServer = https.createServer(options, app);
 		httpsServer.listen(443, '127.0.0.1', () => {
 			console.log('Starting Proxy');
