@@ -8,8 +8,7 @@ namespace Launcher
     class Program
     {
         private static Proxy proxy = new Proxy();
-        private static Process myProxy;
-        private static Process myServer;
+        private static Process server;
         private static bool hasCleanedUp = false;
 
         #region Trap application termination
@@ -51,10 +50,8 @@ namespace Launcher
                 proxy.ProxyEnabled = proxy.InitialProxyEnabled;
                 proxy.RefreshSystem();
                 // close processes
-                if (myProxy != null && !myProxy.HasExited)
-                    myProxy.Kill();
-                if (myServer != null && !myServer.HasExited)
-                    myServer.Kill();
+                if (server != null && !server.HasExited)
+                    server.Kill();
 
                 hasCleanedUp = true;
 
@@ -72,13 +69,18 @@ namespace Launcher
             // Process Start
             var config = new IniFile("config.ini");
             var port = config.Read("Port", "Proxy");
-            var steam = config.Read("Steam", "Paths");
 
             try
             {
-                // Start game
-                Process.Start(steam, "-applaunch 412740");
-                Console.WriteLine("Starting Audioshield");
+                // Set Proxy Settings
+                proxy.ProxyServer = "localhost:" + port;
+                proxy.ProxyEnabled = true;
+                proxy.RefreshSystem();
+                Console.WriteLine("Set Proxy");
+
+                // Start Server, Proxy, and Audioshield
+                server = Process.Start("node", "js/server.js");
+                Console.WriteLine("Starting Server, Proxy, and Audioshield");
 
                 // wait for game start up
                 while (true)
@@ -87,21 +89,6 @@ namespace Launcher
                     if (processes.Length > 0)
                     {
                         Console.WriteLine("Found Audioshield");
-                        processes[0].WaitForInputIdle();
-                        Console.WriteLine("Audioshield Started");
-
-                        Thread.Sleep(5000);
-
-                        // Set Proxy Settings
-                        proxy.ProxyServer = "localhost:" + port;
-                        proxy.ProxyEnabled = true;
-                        proxy.RefreshSystem();
-                        Console.WriteLine("Set Proxy");
-
-                        // Start proxy and server
-                        myProxy = Process.Start("node", "proxy.js");
-                        myServer = Process.Start("node", "index.js");
-                        Console.WriteLine("Started Proxy and Server");
 
                         processes[0].WaitForExit();
                         Console.WriteLine("Audioshield Exited");

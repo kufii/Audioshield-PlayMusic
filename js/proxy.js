@@ -1,9 +1,12 @@
+const path = require('path');
+const fs = require('fs');
+const spawn = require('child_process').spawn;
 const http = require('http');
 const net = require('net');
 const url = require('url');
-const fs = require('fs');
 const ini = require('ini');
-const CONFIG = ini.parse(fs.readFileSync('./config.ini', 'utf-8'));
+const DIR = path.join(__dirname, '..');
+const CONFIG = ini.parse(fs.readFileSync(path.join(DIR, 'config.ini'), 'utf-8'));
 
 // https://nodejs.org/api/http.html#http_event_connect
 // http://stackoverflow.com/questions/20351637/how-to-create-a-simple-http-proxy-in-node-js
@@ -72,6 +75,9 @@ proxy.on('connect', (req, cltSocket, head) => {
 });
 
 // now that proxy is running
-proxy.listen(CONFIG.Proxy.Port);
+proxy.listen(CONFIG.Proxy.Port, '127.0.0.1', () => {
+	console.log('Starting Audioshield');
+	spawn(CONFIG.Paths.Steam, ['-applaunch', '412740']);
+});
 console.log('Proxy running');
 console.log('CTRL+C to shutdown');
