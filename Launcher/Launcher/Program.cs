@@ -9,7 +9,7 @@ namespace Launcher
     class Program
     {
         private static Proxy proxy = new Proxy();
-        private static Process server;
+        private static Process login, server;
         private static bool hasCleanedUp = false;
 
         #region Trap application termination
@@ -51,6 +51,8 @@ namespace Launcher
                 proxy.ProxyEnabled = proxy.InitialProxyEnabled;
                 proxy.RefreshSystem();
                 // close processes
+                if (login != null && !login.HasExited)
+                    login.Kill();
                 if (server != null && !server.HasExited)
                     server.Kill();
 
@@ -94,7 +96,7 @@ namespace Launcher
                     if (!apiKeyExists)
                     {
                         Console.WriteLine("Logging In...");
-                        var login = Process.Start("node", "js/login.js");
+                        login = Process.Start("node", "js/login.js");
                         login.WaitForExit();
                     }
                 }
