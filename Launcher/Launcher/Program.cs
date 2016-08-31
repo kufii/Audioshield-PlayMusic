@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -72,6 +73,32 @@ namespace Launcher
 
             try
             {
+                // run npm install if node_modules doesn't exist
+                var nodeModulesExists = false;
+                while (!nodeModulesExists)
+                {
+                    nodeModulesExists = Directory.Exists("node_modules");
+                    if (!nodeModulesExists)
+                    {
+                        Console.WriteLine("Installing npm packages...");
+                        var npm = Process.Start("npm", "install");
+                        npm.WaitForExit();
+                    }
+                }
+
+                // log in if no apikey
+                var apiKeyExists = false;
+                while (!apiKeyExists)
+                {
+                    apiKeyExists = File.Exists("api/apikey.json");
+                    if (!apiKeyExists)
+                    {
+                        Console.WriteLine("Logging In...");
+                        var login = Process.Start("node", "js/login.js");
+                        login.WaitForExit();
+                    }
+                }
+
                 // Set Proxy Settings
                 proxy.ProxyServer = "localhost:" + port;
                 proxy.ProxyEnabled = true;

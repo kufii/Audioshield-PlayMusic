@@ -12,12 +12,10 @@ Your google account is under the restrictions of the [Node.js unofficial Play Mu
 
 ## Installation Instructions
 
-1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.2.0), visit https://nodejs.org/en/. Verify installation with command `node --version` in Windows Command Prompt.
+1. Audioshield-PlayMusic is based on Node.js. To install Node.js (v6.0 or above), visit https://nodejs.org/en/.
 2. [Download a zip of this project](https://github.com/kufii/Audioshield-PlayMusic/archive/master.zip) and extract it anywhere.
-3. Make sure your Google account has the "Allow less secure apps" setting set to "ON". You can change it [here](https://myaccount.google.com/security#connectedapps).
-4. Open a command prompt, in this directory (Shift + Right Click, Open Command Window Here) and run `npm install`
-5. In the command prompt, run `node js/login.js`. Enter your email and password. If you use 2 factor authentication, you can [generate an app password and use that for your password](https://support.google.com/accounts/answer/185833?hl=en).
-6. Open up config.ini and make sure the correct path is set for Steam.exe. 
+3. Open up config.ini and make sure the correct path is set for Steam.exe.
+4. Run Audioshield-PlayMusic.exe. You will be prompted for your username and app password. You can [generate an app password here](https://support.google.com/accounts/answer/185833?hl=en).
 
 ## Launch Instructions
 

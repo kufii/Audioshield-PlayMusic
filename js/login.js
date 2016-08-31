@@ -7,13 +7,13 @@ const DIR = path.join(__dirname, '..');
 const API_FILE = path.join(DIR, 'api/apikey.json');
 var pm = new PlayMusic();
 
-
+console.log('Please Enter your Email and Password.');
 run(function* (gen) {
 	var isLoggedIn = false;
 	while (!isLoggedIn) {
 		try {
 			var email = yield read({prompt: 'Email: '}, gen());
-			var password = yield read({prompt: 'Password (generate an app password if using 2 factor authentication): ', silent: true}, gen());
+			var password = yield read({prompt: 'App Password (view README for more information): ', silent: true}, gen());
 			var resp = yield pm.login({email: email, password: password}, gen());
 			var apikey = {
 				androidId: resp.androidId,

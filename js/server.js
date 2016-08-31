@@ -475,22 +475,25 @@ app.get('/tracks/:id/stream', (req, res) => {
 if (API_KEY.androidId && API_KEY.masterToken) {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
 	// Audioshield expects HTTPS port 443
-	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, () => {
-		// Cache Library
-		console.log('Caching library...');
-		getLibrary((err) => {
-			if (err) console.error(err);
-			else console.log('Library cached.');
-		});
+	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, (err) => {
+		if (err) console.error(err);
+		else {
+			// Cache Library
+			console.log('Caching library...');
+			getLibrary((err) => {
+				if (err) console.error(err);
+				else console.log('Library cached.');
+			});
 
-		// Start server
-		var httpsServer = https.createServer(options, app);
-		httpsServer.listen(443, '127.0.0.1', () => {
-			console.log('Starting Proxy');
-			spawn('node', [path.join(DIR, 'js/proxy.js')]);
-		});
-		console.log('Server running');
-		console.log('CTRL+C to shutdown');
+			// Start server
+			var httpsServer = https.createServer(options, app);
+			httpsServer.listen(443, '127.0.0.1', () => {
+				console.log('Starting Proxy');
+				spawn('node', [path.join(DIR, 'js/proxy.js')]);
+			});
+			console.log('Server running');
+			console.log('CTRL+C to shutdown');
+		}
 	});
 } else {
 	// Credentials key has not been set
