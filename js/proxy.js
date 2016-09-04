@@ -24,7 +24,7 @@ var proxy = http.createServer((request, response) => {
 		headers: request.headers
 	};
 	var proxy_request = http.request(options);
-	proxy_request.addListener('response', function (proxy_response) {
+	proxy_request.addListener('response', function(proxy_response) {
 		proxy_response.addListener('data', function(chunk) {
 			response.write(chunk, 'binary');
 		});
