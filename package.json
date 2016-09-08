@@ -1,18 +1,22 @@
 {
   "name": "audioshield-playmusic",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "Proxy server for Audioshield to replace Soundcloud support with Google Play Music support",
   "main": "js/server.js",
   "keywords": ["audioshield-playmusic", "audioshield", "play music", "google music", "htc vive", "vive", "soundcloud"],
   "author": "Adrien Pyke (forked from reddit user -olli-)",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.13.4",
-    "fluent-ffmpeg": "^2.1.0",
-    "playmusic": "^2.2.0",
-    "read": "^1.0.7",
-    "gen-run": "^0.1.2",
-    "fuse.js": "^2.2.0",
-    "ini": "^1.3.4"
+    "express": "4.13.4",
+    "fluent-ffmpeg": "2.1.0",
+    "playmusic": "2.2.0",
+    "read": "1.0.7",
+    "gen-run": "0.1.2",
+    "fuse.js": "2.2.0",
+    "ini": "1.3.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kufii/Audioshield-PlayMusic.git"
   }
 }
