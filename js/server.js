@@ -474,7 +474,6 @@ app.get('/tracks/:id/stream', (req, res) => {
 // Script execution begins here
 if (API_KEY.androidId && API_KEY.masterToken) {
 	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
-	// Audioshield expects HTTPS port 443
 	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, (err) => {
 		if (err) console.error(err);
 		else {
@@ -487,7 +486,7 @@ if (API_KEY.androidId && API_KEY.masterToken) {
 
 			// Start server
 			var httpsServer = https.createServer(options, app);
-			httpsServer.listen(443, '127.0.0.1', () => {
+			httpsServer.listen(CONFIG.Settings.ServerPort, '127.0.0.1', () => {
 				console.log('Starting Proxy');
 				spawn('node', [path.join(DIR, 'js/proxy.js')]);
 			});

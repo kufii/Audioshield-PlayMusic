@@ -48,7 +48,8 @@ By default, the search will search all tracks on play music, but you can start a
 The following settings can be set in config.ini
 
 * `Steam=<path>`: Path to Steam.exe
-* `Port=<port>`: The port the proxy server will run on. Defaults to **1234**.
+* `Port=<port>`: The port the proxy will run on. Defaults to **1234**.
+* `ServerPort=<port>`: The port the server will run on. Must be different from the previously mentioned `Port`. Defaults to **1233**.
 * `Bitrate=<bitrate>`: The bitrate of the audio stream. You can set this to a lower value if it's taking a long time to load songs. Defaults to **320**.
 
 ## Uninstallation Instructions

@@ -52,7 +52,7 @@ proxy.on('connect', (req, cltSocket, head) => {
 	if (req.url == 'api.soundcloud.com:443' && req.headers['user-agent'].indexOf('UnityPlayer') !== -1) {
 		// connect to fake soundcloud
 		host = '127.0.0.1';
-		port = '443';
+		port = CONFIG.Settings.ServerPort;
 		console.log('Redirecting to fake soundcloud');
 	} else {
 		// connect to real server
