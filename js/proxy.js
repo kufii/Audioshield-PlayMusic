@@ -33,7 +33,7 @@ var proxy = http.createServer((request, response) => {
 		});
 		proxy_response.addListener('end', () => {
 			if (options.hostname.match(/^(?:www\.)?audiosurf2\.com$/) && (options.path === '/shield/download_yash.php') && options.headers['user-agent'].indexOf('UnityPlayer') !== -1) {
-				console.log(`RESPONSE: ${responseData}`);
+				// console.log(`RESPONSE: ${responseData}`);
 			}
 			response.end();
 		});
@@ -61,9 +61,7 @@ var proxy = http.createServer((request, response) => {
 			var videoMatch = requestData.match(/videoids=(\*[^&]*)/);
 			var streamMatch = requestData.match(/^id=(\*.*)/);
 			var doRequest = (path) => {
-				process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 				console.log('Redirecting to Play Music');
-				process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 				http.get({
 					hostname: '127.0.0.1',
 					path: path,
