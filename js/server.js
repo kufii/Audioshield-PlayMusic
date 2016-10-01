@@ -1,5 +1,4 @@
 // Audioshield-PlayMusic
-// Fork of Audioshield-Tubifier by https://www.reddit.com/user/-olli-
 
 // Required libraries
 const path = require('path');
@@ -7,7 +6,6 @@ const fs = require('fs');
 const spawn = require('child_process').spawn;
 const PlayMusic = require('playmusic');
 const ffmpeg = require('fluent-ffmpeg');
-const https = require('https');
 const http = require('http');
 const express = require('express');
 const run = require('gen-run');
@@ -37,22 +35,20 @@ const CONFIG = ini.parse(fs.readFileSync(path.join(DIR, 'config.ini'), 'utf-8'))
 const API_KEY = require(path.join(DIR, 'api/apikey.json'));
 
 // Load a template for an empty response from Soundcloud API. This will be filled with values from the Play Music API.
-const soundcloudTemplate = require(path.join(DIR, 'api/soundcloud_template.json'));
+const searchTemplate = require(path.join(DIR, 'api/youtube-search-template.json'));
+const resultTemplate = require(path.join(DIR, 'api/youtube-search-result-template.json'));
+const youtubeTemplate = require(path.join(DIR, 'api/youtube-template.json'));
+const videoTemplate = require(path.join(DIR, 'api/youtube-video-template.json'));
 
 var app = express();
 var pm = new PlayMusic();
-
-// Setting a dummy HTTPS certificate
-var options = {
-	key: fs.readFileSync(path.join(DIR, 'cert/key.pem')),
-	cert: fs.readFileSync(path.join(DIR, 'cert/cert.pem'))
-};
 
 // Cached items
 var CACHED_LIBRARY;
 var CACHED_PLAYLIST_NAMES;
 var CACHED_PLAYLIST_TRACKS;
 var CACHED_FAVORITES;
+var CACHED_VIDEOS = {};
 
 var parseQuery = function(q) {
 	q = q && q.trim();
@@ -76,67 +72,40 @@ var parseQuery = function(q) {
 	return { cmd: cmd, q: (indexOfSpace < 0) ? null : q.slice(indexOfSpace + 1), qOptional: qOptional };
 };
 
-var parseTracks = function(tracks) {
-	var output = tracks.map((track) => {
-		var soundcloudResponse = JSON.parse(JSON.stringify(soundcloudTemplate));
-		// Fill the template with values from the Play Music API response
-		// Note specially the stream_url -field, which is set to correspond to our /stream HTTPS endpoint
-		// Start the id off with [pm] to differentiate between SoundCloud and Play Music
-		soundcloudResponse.title = track.title;
-		soundcloudResponse.id = `PM_${track.nid}`;
-		if (track.albumArtRef) {
-			soundcloudResponse.artwork_url = track.albumArtRef[0].url;
+var parseSearch = function(tracks) {
+	var output = JSON.parse(JSON.stringify(searchTemplate));
+	output.pageInfo.totalResults = output.pageInfo.resultsPerPage = tracks.length;
+	output.items = tracks.map((track) => {
+		var video = JSON.parse(JSON.stringify(resultTemplate));
+		video.id.videoId = `*${track.nid}`;
+		video.snippet.title = track.title;
+		video.snippet.channelTitle = track.artist;
+		for (var property in video.snippet.thumbnails) {
+			video.snippet.thumbnails[property].url = track.albumArtRef[0].url;
 		}
-		soundcloudResponse.user.username = track.artist;
-		soundcloudResponse.stream_url = `https://api.soundcloud.com/tracks/${soundcloudResponse.id}/stream`;
-		soundcloudResponse.uri = soundcloudResponse.stream_url;
-		soundcloudResponse.permalink = soundcloudResponse.id;
-		soundcloudResponse.permalink_url = soundcloudResponse.uri;
-
-		return soundcloudResponse;
+		return video;
 	});
 
 	// Return the constructed output in JSON-format
 	return JSON.stringify(output);
 };
 
-var getSoundCloudUrl = function(originalUrl, callback) {
-	try {
-		http.get({
-			hostname: 'api.soundcloud.com',
-			path: originalUrl
-		}, (response) => {
-			var body = '';
-			response.on('data', (d) => {
-				body += d;
-			});
-			response.on('end', () => {
-				var parsed = JSON.parse(body);
-				callback(null, parsed.location);
-			});
-		});
-	} catch (err) {
-		callback(err);
-	}
-};
+var parseVideos = function(tracks) {
+	var output = JSON.parse(JSON.stringify(youtubeTemplate));
+	output.pageInfo.totalResults = output.pageInfo.resultsPerPage = tracks.length;
+	output.items = tracks.map((track) => {
+		var video = JSON.parse(JSON.stringify(videoTemplate));
+		video.id = `*${track.nid}`;
+		video.snippet.title = video.snippet.localized.title = track.title;
+		video.snippet.channelTitle = track.artist;
+		for (var property in video.snippet.thumbnails) {
+			video.snippet.thumbnails[property].url = track.albumArtRef[0].url;
+		}
+		return video;
+	});
 
-var getSoundCloudTracks = function(q, client_id, callback) {
-	try {
-		http.get({
-			hostname: 'api.soundcloud.com',
-			path: encodeURI(`/tracks?q=${q}&client_id=${client_id}`)
-		}, (response) => {
-			var body = '';
-			response.on('data', (d) => {
-				body += d;
-			});
-			response.on('end', () => {
-				callback(null, JSON.parse(body));
-			});
-		});
-	} catch (err) {
-		callback(err);
-	}
+	// Return the constructed output in JSON-format
+	return JSON.stringify(output);
 };
 
 var getMusic = function(q, entryType, callback) {
@@ -377,74 +346,67 @@ const CMD = {
 	}
 };
 
-// Here we register a HTTPS endpoint that handles searching Play Music for tracks
-// This endpoint format is set by Audioshield, so we have to follow it
-// Expected URL: https://api.soundcloud.com/tracks?q=<SearchTerms>
+// Here we register a HTTP endpoint that handles searching Play Music for tracks
+// Expected URL: /tracks?q=<SearchTerms>
 app.get('/tracks', (req, res) => {
-	// Are we missing the q -parameter or is it empty?
-	var q = parseQuery(req.query.q);
+	if (req.query.q) {
+		var q = parseQuery(req.query.q);
 
-	if (!q.q && !q.qOptional) {
-		res.writeHead(200);
-		res.end('');
-	} else {
-		// q -parameter found
-		console.log(`Got a search request: ${req.query.q}`);
+		if (!q.q && !q.qOptional) {
+			res.writeHead(200);
+			res.end('');
+		} else {
+			// q -parameter found
+			console.log(`Got a search request: ${req.query.q}`);
 
-		run(function*(gen) {
-			try {
-				var tracks, content;
-
-				if (q.cmd === 'sc') {
-					// redirect to OG SoundCloud API
-					console.log('Redirecting to SoundCloud API...');
-					if (req.query.client_id) {
-						tracks = yield getSoundCloudTracks(q.q, req.query.client_id, gen());
-						content = JSON.stringify(tracks);
-					} else {
-						console.log('SoundCloud API client_id missing.');
-						res.writeHead(200);
-						res.end('');
-						return;
-					}
-				} else {
+			run(function*(gen) {
+				try {
+					var tracks;
 					if (q.cmd && CMD[q.cmd]) {
 						tracks = yield CMD[q.cmd].fn(q.q, gen());
 					} else {
 						tracks = yield getTracks(q.q, gen());
 					}
 
-					content = parseTracks(tracks);
-				}
+					CACHED_VIDEOS = {};
+					tracks.forEach((track) => {
+						CACHED_VIDEOS[track.nid] = track;
+					});
 
-				// Write contents to browser
-				res.writeHead(200);
-				res.end(content);
-			} catch (err) {
-				console.error(err);
-				res.writeHead(500);
-				res.end(`Error loading tracks for ${req.query.q}`);
-			}
+					// Write contents to browser
+					res.writeHead(200);
+					res.end(parseSearch(tracks));
+				} catch (err) {
+					console.error(err);
+					res.writeHead(500);
+					res.end(`Error loading tracks for ${req.query.q}`);
+				}
+			});
+		}
+	} else if (req.query.v) {
+		console.log('Loading IDs...');
+		var videoIds = req.query.v.split(',');
+		var tracks = videoIds.map((id) => {
+			if (id.startsWith('*')) id = id.slice(1);
+			return CACHED_VIDEOS[id];
+		}).filter((track) => {
+			return track;
 		});
+		// Write contents to browser
+		res.writeHead(200);
+		res.end(parseVideos(tracks));
 	}
 });
 
-// Here we register a HTTPS endpoint that streams a given Play Music ID as an mp3-file
-// Return a play music id if it starts with PM_, else redirect to original SC id
+// Here we register a HTTP endpoint that streams a given Play Music ID as an mp3-file
+// Expected URL: /tracks/:id/stream
 app.get('/tracks/:id/stream', (req, res) => {
 	var id = req.params.id;
 	run(function*(gen) {
 		try {
-			var url;
-			if (id.startsWith('PM_')) {
-				// parse out the PM_
-				id = id.slice(3);
-				console.log(`Got a stream request for Play Music id: ${id}`);
-				url = yield pm.getStreamUrl(id, gen());
-			} else {
-				console.log(`Got a stream request for SoundCloud id: ${id}`);
-				url = yield getSoundCloudUrl(req.originalUrl, gen());
-			}
+			if (id.startsWith('*')) id = id.slice(1);
+			console.log(`Got a stream request for Play Music id: ${id}`);
+			var url = yield pm.getStreamUrl(id, gen());
 
 			// Set the HTTP-headers to audio/mpeg
 			res.setHeader('Content-Type', 'audio/mpeg');
@@ -473,7 +435,7 @@ app.get('/tracks/:id/stream', (req, res) => {
 
 // Script execution begins here
 if (API_KEY.androidId && API_KEY.masterToken) {
-	// Credentials have been set, start the server and listen for incoming connections to our HTTPS endpoints
+	// Credentials have been set, start the server and listen for incoming connections to our HTTP endpoints
 	pm.init({ androidId: API_KEY.androidId, masterToken: API_KEY.masterToken }, (err) => {
 		if (err) console.error(err);
 		else {
@@ -485,8 +447,7 @@ if (API_KEY.androidId && API_KEY.masterToken) {
 			});
 
 			// Start server
-			var httpsServer = https.createServer(options, app);
-			httpsServer.listen(CONFIG.Settings.ServerPort, '127.0.0.1', () => {
+			app.listen(CONFIG.Settings.ServerPort, () => {
 				console.log('Starting Proxy');
 				spawn('node', [path.join(DIR, 'js/proxy.js')]);
 			});

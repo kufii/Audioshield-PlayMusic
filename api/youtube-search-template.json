@@ -1,0 +1,11 @@
+{
+	"kind": "youtube#searchListResponse",
+	"etag": "",
+	"nextPageToken": "",
+	"regionCode": "US",
+	"pageInfo": {
+		"totalResults": 0,
+		"resultsPerPage": 0
+	},
+	"items": []
+}

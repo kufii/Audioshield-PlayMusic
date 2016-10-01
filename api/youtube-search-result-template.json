@@ -1,0 +1,33 @@
+{
+	"kind": "youtube#searchResult",
+	"etag": "",
+	"id": {
+		"kind": "youtube#video",
+		"videoId": ""
+	},
+	"snippet": {
+		"publishedAt": "2015-10-26T08:00:01.000Z",
+		"channelId": "",
+		"title": "",
+		"description": "",
+		"thumbnails": {
+			"default": {
+				"url": "",
+				"width": 120,
+				"height": 120
+			},
+			"medium": {
+				"url": "",
+				"width": 320,
+				"height": 320
+			},
+			"high": {
+				"url": "",
+				"width": 480,
+				"height": 480
+			}
+		},
+		"channelTitle": "",
+		"liveBroadcastContent": "none"
+	}
+}

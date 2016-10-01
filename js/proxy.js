@@ -24,22 +24,68 @@ var proxy = http.createServer((request, response) => {
 		headers: request.headers
 	};
 	var proxy_request = http.request(options);
-	proxy_request.addListener('response', function(proxy_response) {
-		proxy_response.addListener('data', function(chunk) {
+
+	var onResponse = (proxy_response) => {
+		var responseData = '';
+		proxy_response.addListener('data', (chunk) => {
+			responseData += chunk;
 			response.write(chunk, 'binary');
 		});
-		proxy_response.addListener('end', function() {
+		proxy_response.addListener('end', () => {
+			if (options.hostname.match(/^(?:www\.)?audiosurf2\.com$/) && (options.path === '/shield/download_yash.php') && options.headers['user-agent'].indexOf('UnityPlayer') !== -1) {
+				console.log(`RESPONSE: ${responseData}`);
+			}
 			response.end();
 		});
 		response.writeHead(proxy_response.statusCode, proxy_response.headers);
-	});
-	proxy_request.on('error', (err) => {
+	};
+
+	var onError = (err) => {
 		console.log(`ERROR: ${err.message}`);
+	};
+
+	proxy_request.addListener('response', onResponse);
+	proxy_request.on('error', onError);
+	var requestData = '';
+	request.addListener('data', (chunk) => {
+		requestData += chunk;
 	});
-	request.addListener('data', function(chunk) {
-		proxy_request.write(chunk, 'binary');
-	});
-	request.addListener('end', function() {
+	request.addListener('end', () => {
+		if (options.hostname.match(/^(?:www\.)?audiosurf2\.com$/) && (options.path === '/shield/airgame_youtube.php' || options.path === '/shield/download_yash.php') && options.headers['user-agent'].indexOf('UnityPlayer') !== -1) {
+			var searchMatch = requestData.match(/searchtext=([^&]*)/);
+			if (searchMatch && searchMatch[1].toLowerCase().startsWith('-yt ')) {
+				console.log('Falling back to Youtube search');
+				requestData.replace(/searchtext=-yt /i, 'searchtext=');
+				searchMatch = null;
+			}
+			var videoMatch = requestData.match(/videoids=(\*[^&]*)/);
+			var streamMatch = requestData.match(/^id=(\*.*)/);
+			var doRequest = (path) => {
+				process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+				console.log('Redirecting to Play Music');
+				process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+				http.get({
+					hostname: '127.0.0.1',
+					path: path,
+					port: CONFIG.Settings.ServerPort
+				}, onResponse).on('error', onError);
+				proxy_request.abort();
+			};
+			if (searchMatch) {
+				console.log('Redirecting to Play Music');
+				doRequest(`/tracks?q=${searchMatch[1]}`);
+			} else if (videoMatch) {
+				doRequest(`/tracks?v=${videoMatch[1]}`);
+			} else if (streamMatch) {
+				console.log('Streaming Play Music');
+				doRequest(`/tracks/${streamMatch[1]}/stream`);
+			} else {
+				//console.log(`REQUEST: ${requestData}`);
+				proxy_request.write(requestData, 'binary');
+			}
+		} else {
+			proxy_request.write(requestData, 'binary');
+		}
 		proxy_request.end();
 	});
 });
@@ -48,18 +94,9 @@ proxy.on('connect', (req, cltSocket, head) => {
 	var host;
 	var port;
 	console.log(req.url);
-
-	if (req.url == 'api.soundcloud.com:443' && req.headers['user-agent'].indexOf('UnityPlayer') !== -1) {
-		// connect to fake soundcloud
-		host = '127.0.0.1';
-		port = CONFIG.Settings.ServerPort;
-		console.log('Redirecting to fake soundcloud');
-	} else {
-		// connect to real server
-		var srvUrl = url.parse(`http://${req.url}`);
-		host = srvUrl.hostname;
-		port = srvUrl.port;
-	}
+	var srvUrl = url.parse(`http://${req.url}`);
+	host = srvUrl.hostname;
+	port = srvUrl.port;
 
 	var srvSocket = net.connect(port, host, () => {
 		cltSocket.write('HTTP/1.1 200 Connection Established\r\n' +

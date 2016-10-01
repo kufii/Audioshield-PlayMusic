@@ -1,0 +1,57 @@
+{
+	"kind": "youtube#video",
+	"etag": "",
+	"id": "",
+	"snippet": {
+		"publishedAt": "2015-10-26T08:00:01.000Z",
+		"channelId": "",
+		"title": "",
+		"description": "",
+		"thumbnails": {
+			"default": {
+				"url": "",
+				"width": 120,
+				"height": 120
+			},
+			"medium": {
+				"url": "",
+				"width": 320,
+				"height": 320
+			},
+			"high": {
+				"url": "",
+				"width": 480,
+				"height": 480
+			},
+			"standard": {
+				"url": "",
+				"width": 640,
+				"height": 640
+			},
+			"maxres": {
+				"url": "",
+				"width": 1280,
+				"height": 1280
+			}
+		},
+		"channelTitle": "",
+		"tags": [],
+		"categoryId": "10",
+		"liveBroadcastContent": "none",
+		"localized": {
+			"title": "",
+			"description": ""
+		}
+	},
+	"contentDetails": {
+		"duration": "PT3M58S",
+		"dimension": "2d",
+		"definition": "hd",
+		"caption": "false",
+		"licensedContent": true,
+		"regionRestriction": {
+			"blocked": []
+		},
+		"projection": "rectangular"
+	}
+}
