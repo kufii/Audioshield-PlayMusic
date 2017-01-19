@@ -2,6 +2,8 @@
 
 A Proxy server for Audioshield that replaces Soundcloud support with Play Music support. This is based off the concept of Audioshield-Tubifier by reddit user -olli-.
 
+**IMPORTANT: This project has been made obsolete since Audioshield removed SoundCloud support. If someone can think of a way to implement this in the latest version please let me know.**
+
 ## Setting up Account
 
 Your google account is under the restrictions of the [Node.js unofficial Play Music API](https://github.com/jamon/playmusic) I used.
