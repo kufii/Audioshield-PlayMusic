@@ -9,7 +9,7 @@
   "dependencies": {
     "express": "4.13.4",
     "fluent-ffmpeg": "2.1.0",
-    "playmusic": "2.2.0",
+    "playmusic": "2.3.0",
     "read": "1.0.7",
     "gen-run": "0.1.2",
     "fuse.js": "2.2.0",
